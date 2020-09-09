@@ -14,7 +14,8 @@ class arg_tools:
       exit(1)
 
   @staticmethod
-  def build_full_parser():
+  def build_full_parser(spec):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', help='Run in debug mode for extended output.', action='store_true', default=False, required=False)
-    return parser
+    subparser = parser.add_subparsers(dest='cmd', description=spec['desc'])
+    parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'])
+    return parser, parser_baz
