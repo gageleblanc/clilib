@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-rm -rf build dist upldr.egg-info
+rm -rf build dist *.egg-info
