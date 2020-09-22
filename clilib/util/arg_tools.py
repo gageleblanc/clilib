@@ -25,8 +25,12 @@ class arg_tools:
     def build_full_subparser(spec):
         parser, subparser = arg_tools.build_full_parser(spec)
         for pos in spec['positionals']:
-            subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
-                                   default=pos['default'])
+            if 'nargs' in pos:
+                subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
+                                       default=pos['default'], nargs=pos['nargs'])
+            else:
+                subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
+                                       default=pos['default'])
 
         for flag in spec['flags']:
             if 'action' in flag:
