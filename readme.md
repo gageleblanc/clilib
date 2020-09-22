@@ -44,6 +44,61 @@ class main:
         }
         self.spec = {
             "desc": 'Switch lights on and off. Supported subcommands are: {}'.format(", ".join(self.command_methods.keys())),
+            "name": 'switch',
+            "positionals": [
+                {
+                    "name": "subcommand",
+                    "metavar": "SUBCOMMAND",
+                    "help": "Subcommand for switch command.",
+                    "default": "on",
+                    "type": str
+                },
+                {
+                    "name": "id",
+                    "metavar": "ID",
+                    "type": int,
+                    "help": "ID of the light or group to manipulate.",
+                    "default": False
+                },
+            ],
+            "flags": [
+                {
+                    "names": ['-d', '--debug'],
+                    "help": "Add extended output.",
+                    "required": False,
+                    "default": False,
+                    "action": "store_true"
+                },
+                {
+                    "names": ['-g', '--group'],
+                    "help": "Switch group instead of individual light",
+                    "required": False,
+                    "default": False,
+                    "action": "store_true"
+                }
+            ]
+        }
+        args = arg_tools.build_full_subparser(self.spec)
+        self.args = args
+        self.args.logger = Util.configure_logging(args, __name__)
+        self.command_methods[args.subcommand]()
+
+    ... Your code here ...
+```
+You can also manually build your parser if you need more flexibility. Instead of using `build_full_subparser`, you can use `build_full_parser`, which will return a `parser, subparser` tuple. You can use these to manually add arguments as shown below:
+```
+from clilib.util.util import Util
+from clilib.util.arg_tools import arg_tools
+
+
+class main:
+    def __init__(self):
+        self.command_methods = {
+            'off': self.light_off,
+            'on': self.light_on
+        }
+        self.spec = {
+            "desc": 'Switch lights on and off. Supported subcommands are: {}'.format(", ".join(self.command_methods.keys())),
             "name": 'switch'
         }
         parser, subparser = arg_tools.build_full_parser(self.spec)
