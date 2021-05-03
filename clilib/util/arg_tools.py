@@ -24,6 +24,33 @@ class arg_tools:
     @staticmethod
     def build_full_subparser(spec):
         parser, subparser = arg_tools.build_full_parser(spec)
+        # for pos in spec['positionals']:
+        #     if 'nargs' in pos:
+        #         subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
+        #                                default=pos['default'], nargs=pos['nargs'])
+        #     else:
+        #         subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
+        #                                default=pos['default'])
+        #
+        # for flag in spec['flags']:
+        #     if 'action' in flag:
+        #         if 'store_true' in flag['action']:
+        #             subparser.add_argument(*flag['names'], help=flag['help'], default=flag['default'],
+        #                                    action=flag['action'], required=flag['required'])
+        #         else:
+        #             subparser.add_argument(*flag['names'], type=flag['type'], help=flag['help'],
+        #                                    default=flag['default'],
+        #                                    action=flag['action'],
+        #                                    required=flag['required'])
+        #     else:
+        #         subparser.add_argument(*flag['names'], type=flag['type'], help=flag['help'], default=flag['default'],
+        #                                required=flag['required'])
+        arg_tools.build_subparser_args(spec, subparser)
+
+        return parser.parse_args()
+
+    @staticmethod
+    def build_subparser_args(spec, subparser):
         for pos in spec['positionals']:
             if 'nargs' in pos:
                 subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
@@ -45,5 +72,20 @@ class arg_tools:
             else:
                 subparser.add_argument(*flag['names'], type=flag['type'], help=flag['help'], default=flag['default'],
                                        required=flag['required'])
+
+    @staticmethod
+    def build_nested_subparsers(spec):
+        parser = argparse.ArgumentParser(add_help=False)
+        cmd_subparser = parser.add_subparsers(dest='cmd', description=spec['desc'])
+        cmd_parser = cmd_subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'])
+        subcommand_subparser = cmd_parser.add_subparsers(dest='subcmd', description=spec['desc'])
+        arg_tools.build_subparser_args(spec, cmd_parser)
+        subcommand_parsers = {}
+        for subcommand in spec["subcommands"]:
+            subcommand_name = subcommand['name']
+            subcommand_parsers[subcommand_name] = {}
+            # subcommand_parsers[subcommand_name][subcommand_name + "_sp"] = cmd_parser.add_subparsers(title=subcommand['name'], description=subcommand['desc'])
+            subcommand_parsers[subcommand_name][subcommand_name + "_p"] = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'], description=subcommand['desc'], parents=[parser])
+            arg_tools.build_subparser_args(subcommand, subcommand_parsers[subcommand_name][subcommand_name + "_p"])
 
         return parser.parse_args()
