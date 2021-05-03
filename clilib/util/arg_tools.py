@@ -53,17 +53,24 @@ class arg_tools:
                                        required=flag['required'])
 
     @staticmethod
+    def process_subcommands(spec, subcommand_subparser):
+        subcommand_parsers = {}
+        for subcommand in spec['subcommands']:
+            subcommand_name = subcommand['name']
+            subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'], description=subcommand['desc'])  # parents=[cmd_parser], add_help=False
+            subcommand_parsers[subcommand_name] = subcommand_parser
+            arg_tools.build_subparser_args(subcommand, subcommand_parser)
+            if "subcommands" in subcommand:
+                subcommand_sp = subcommand_parser.add_subparsers(dest=spec['name'] + "_sub", description=spec['desc'])
+                arg_tools.process_subcommands(subcommand, subcommand_sp)
+
+    @staticmethod
     def build_nested_subparsers(spec):
         parser = argparse.ArgumentParser(add_help=False)
         cmd_subparsers = parser.add_subparsers(dest='cmd', description=spec['desc'])
         cmd_parser = cmd_subparsers.add_parser(spec['name'], help=spec['desc'], description=spec['desc'])
         subcommand_subparser = cmd_parser.add_subparsers(dest='subcmd', description=spec['desc'])
         arg_tools.build_subparser_args(spec, cmd_parser)
-        subcommand_parsers = {}
-        for subcommand in spec["subcommands"]:
-            subcommand_name = subcommand['name']
-            subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'], description=subcommand['desc'])  # parents=[cmd_parser], add_help=False
-            subcommand_parsers[subcommand_name] = subcommand_parser
-            arg_tools.build_subparser_args(subcommand, subcommand_parser)
+        arg_tools.process_subcommands(spec, subcommand_subparser)
 
         return parser.parse_args()
