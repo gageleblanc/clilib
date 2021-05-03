@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5fba1d6-e4b6-44cc-9c27-896711e809dc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/clilib.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/clilib.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/clilib/util/arg_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/clilib/util/arg_tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +34,7 @@
       <option name="presentableId" value="Default" />
       <updated>1620059229584</updated>
       <workItem from="1620059231889" duration="1307000" />
-      <workItem from="1620060855438" duration="7028000" />
+      <workItem from="1620060855438" duration="8140000" />
     </task>
     <servers />
   </component>
