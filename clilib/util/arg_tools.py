@@ -24,27 +24,6 @@ class arg_tools:
     @staticmethod
     def build_full_subparser(spec):
         parser, subparser = arg_tools.build_full_parser(spec)
-        # for pos in spec['positionals']:
-        #     if 'nargs' in pos:
-        #         subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
-        #                                default=pos['default'], nargs=pos['nargs'])
-        #     else:
-        #         subparser.add_argument(pos['name'], metavar=pos['metavar'], type=pos['type'], help=pos['help'],
-        #                                default=pos['default'])
-        #
-        # for flag in spec['flags']:
-        #     if 'action' in flag:
-        #         if 'store_true' in flag['action']:
-        #             subparser.add_argument(*flag['names'], help=flag['help'], default=flag['default'],
-        #                                    action=flag['action'], required=flag['required'])
-        #         else:
-        #             subparser.add_argument(*flag['names'], type=flag['type'], help=flag['help'],
-        #                                    default=flag['default'],
-        #                                    action=flag['action'],
-        #                                    required=flag['required'])
-        #     else:
-        #         subparser.add_argument(*flag['names'], type=flag['type'], help=flag['help'], default=flag['default'],
-        #                                required=flag['required'])
         arg_tools.build_subparser_args(spec, subparser)
 
         return parser.parse_args()
