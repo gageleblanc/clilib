@@ -1,4 +1,3 @@
-from pathlib import Path
 import json
 from sys import platform
 
@@ -27,8 +26,8 @@ class Loader:
         except ImportError as ex:
             print("Command not found: " + args.command[0] + ". Command must be one of " + ", ".join(modules))
             print(ex)
-        except SystemExit as _:
-            exit(0)
-        except KeyboardInterrupt as kbi:
+        except SystemExit as sys_exit:
+            exit(sys_exit.code)
+        except KeyboardInterrupt:
             print("User keyboard interrupt!")
             exit(1)
