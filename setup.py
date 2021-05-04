@@ -5,7 +5,7 @@ with open("readme.md", "r") as fh:
 
 setuptools.setup(
     name='clilib',
-    version='1.9.3',
+    version='1.9.4',
     scripts=[],
     author="Gage LeBlanc",
     author_email="gleblanc@symnet.io",
