@@ -18,7 +18,8 @@ class arg_tools:
     def build_full_parser(spec):
         parser = argparse.ArgumentParser()
         subparser = parser.add_subparsers(dest='cmd', description=spec['desc'])
-        parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'], parents=[subparser])
+        parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'],
+                                          parents=[subparser])
         return parser, parser_baz
 
     @staticmethod
@@ -57,11 +58,13 @@ class arg_tools:
         subcommand_parsers = {}
         for subcommand in spec['subcommands']:
             subcommand_name = subcommand['name']
-            subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'], description=subcommand['desc'])  # parents=[cmd_parser], add_help=False
+            subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'],
+                                                                description=subcommand['desc'])
             subcommand_parsers[subcommand_name] = subcommand_parser
             arg_tools.build_subparser_args(subcommand, subcommand_parser)
             if "subcommands" in subcommand:
-                subcommand_sp = subcommand_parser.add_subparsers(dest=subcommand['name'] + "_sub", description=spec['desc'])
+                subcommand_sp = subcommand_parser.add_subparsers(dest=subcommand['name'] + "_sub",
+                                                                 description=spec['desc'])
                 arg_tools.process_subcommands(subcommand, subcommand_sp)
 
     @staticmethod
