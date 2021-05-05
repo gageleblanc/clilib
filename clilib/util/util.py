@@ -13,17 +13,17 @@ class Util:
         print("Import success!")
 
     @staticmethod
-    def configure_logging(args, name, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s'):
+    def configure_logging(args=None, name=__name__, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s'):
         log_formatter = logging.Formatter(fmt=fmt)
         log = logging.getLogger(name)
         log.setLevel(logging.INFO)
-        if args.debug:
+        if args and "debug" in args and args.debug:
             log.setLevel(logging.DEBUG)
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(log_formatter)
-        if args.debug:
+        if args and "debug" in args and args.debug:
             console_handler.setLevel(logging.DEBUG)
 
         log.addHandler(console_handler)
