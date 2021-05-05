@@ -63,8 +63,7 @@ class arg_tools:
             subcommand_parsers[subcommand_name] = subcommand_parser
             arg_tools.build_subparser_args(subcommand, subcommand_parser)
             if "subcommands" in subcommand:
-                subcommand_sp = subcommand_parser.add_subparsers(dest=subcommand['name'] + "_sub",
-                                                                 description=spec['desc'])
+                subcommand_sp = subcommand_parser.add_subparsers(dest=subcommand['name'], description=spec['desc'])
                 arg_tools.process_subcommands(subcommand, subcommand_sp)
 
     @staticmethod
