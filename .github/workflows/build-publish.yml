@@ -26,6 +26,7 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
   publish:
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/integration'
     needs: build
     strategy:
       matrix:
@@ -40,7 +41,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Publish distribution 📦 to Test PyPI
-        if: github.ref != 'refs/heads/master'
+        if: github.ref == 'refs/heads/integration'
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
