@@ -18,8 +18,7 @@ class arg_tools:
     def build_full_parser(spec):
         parser = argparse.ArgumentParser()
         subparser = parser.add_subparsers(dest='cmd', description=spec['desc'])
-        parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'],
-                                          parents=[subparser])
+        parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'])
         return parser, parser_baz
 
     @staticmethod
