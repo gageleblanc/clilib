@@ -16,6 +16,8 @@ class Util:
     def configure_logging(args=None, name=__name__, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s'):
         log_formatter = logging.Formatter(fmt=fmt)
         log = logging.getLogger(name)
+        if log.hasHandlers():
+            return log
         log.setLevel(logging.INFO)
         if args and "debug" in args and args.debug:
             log.setLevel(logging.DEBUG)
