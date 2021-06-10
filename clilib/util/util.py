@@ -20,7 +20,6 @@ class Util:
         if log.hasHandlers():
             return log
         log.setLevel(logging.INFO)
-        print(args)
         if args is not None:
             if isinstance(args, argparse.Namespace):
                 if "debug" in args:
