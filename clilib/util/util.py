@@ -1,4 +1,5 @@
 import logging
+import argparse
 import sys
 
 
@@ -19,14 +20,21 @@ class Util:
         if log.hasHandlers():
             return log
         log.setLevel(logging.INFO)
-        if args and "debug" in args and args.debug:
-            log.setLevel(logging.DEBUG)
+        print(args)
+        if args is not None:
+            if isinstance(args, argparse.Namespace):
+                if "debug" in args:
+                    if args.debug:
+                        log.setLevel(logging.DEBUG)
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(log_formatter)
-        if args and "debug" in args and args.debug:
-            console_handler.setLevel(logging.DEBUG)
+        if args is not None:
+            if isinstance(args, argparse.Namespace):
+                if "debug" in args:
+                    if args.debug:
+                        console_handler.setLevel(logging.DEBUG)
 
         log.addHandler(console_handler)
 
