@@ -55,7 +55,7 @@ class Logging:
             if self._debug:
                 self._logger.warning("Skipping user logging config due to error: %s" % str(e))
         try:
-            config = ConfigLoader(config={**user_config, **global_config}, schema={"debug": bool, "log_to_file": bool, "log_dir": str, "console_log": bool}, from_obj=True).get_config()
+            config = ConfigLoader(config={**global_config, **user_config}, schema={"debug": bool, "log_to_file": bool, "log_dir": str, "console_log": bool}, from_obj=True).get_config()
         except Exception as e:
             config = None
             if self._debug:
