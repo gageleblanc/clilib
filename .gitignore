@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 .idea/workspace.xml
+
+test_schema.py
