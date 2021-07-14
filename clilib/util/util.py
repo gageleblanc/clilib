@@ -14,7 +14,7 @@ class Util:
         print("Import success!")
 
     @staticmethod
-    def configure_logging(args=None, name=__name__, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s'):
+    def configure_logging(args=None, name=__name__, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', file_log: bool = False, log_path_prefix: str = "/var/log"):
         log_formatter = logging.Formatter(fmt=fmt)
         log = logging.getLogger(name)
         if log.hasHandlers():
@@ -34,6 +34,9 @@ class Util:
                 if "debug" in args:
                     if args.debug:
                         console_handler.setLevel(logging.DEBUG)
+
+        if file_log:
+            log_path = name.split(".")
 
         log.addHandler(console_handler)
 
