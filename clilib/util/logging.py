@@ -19,7 +19,8 @@ class Logging:
                 if "debug" in self._config.get_dict():
                     self._debug = self._config.debug
                 if "log_dir" in self._config.get_dict():
-                    self._log_dir = self._config.log_dir
+                    self._log_dir = Path(self._config.log_dir)
+                    self._log_filename = self._log_dir.joinpath("%s.log" % self.name)
                 if "log_to_file" in self._config.get_dict():
                     file_log = self._config.log_to_file
                 if "console_log" in self._config.get_dict():
@@ -56,12 +57,12 @@ class Logging:
             if self._debug:
                 self._logger.warning("Skipping user logging config due to error: %s" % str(e))
         try:
-            config = ConfigLoader(config={**global_config, **user_config}, schema={"debug": bool, "log_to_file": bool, "log_dir": str, "console_log": bool}, from_obj=True).get_config()
+            global_config.update(user_config)
+            config = ConfigLoader(config=global_config, schema={"debug": bool, "log_to_file": bool, "log_dir": str, "console_log": bool}, from_obj=True).get_config()
         except Exception as e:
             config = None
             if self._debug:
                 self._logger.warning("Skipping logging config due to error: %s" % str(e))
-
         return config
 
     def _configure_console_handler(self):
