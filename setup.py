@@ -1,11 +1,12 @@
 import setuptools
+import clilib
 
 with open("readme.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='clilib',
-    version='2.1.0',
+    version=clilib.__version__,
     scripts=[],
     author="Gage LeBlanc",
     author_email="gleblanc@symnet.io",
