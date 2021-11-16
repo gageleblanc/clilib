@@ -12,7 +12,7 @@ class CLIApp:
         self.prefix = False
         if prefix_path is not None:
             self.prefix = True
-        self.logger = Logging("CLIApp").get_logger()
+        self.logger = Logging(app_name).get_logger()
         self.subcommands = {}
 
     def add_subcommand(self, name: str, path: str):

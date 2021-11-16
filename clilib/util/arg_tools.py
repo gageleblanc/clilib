@@ -30,10 +30,6 @@ class arg_tools:
         subparser = parser.add_subparsers(dest='cmd', description=spec['desc'])
         aliases = spec.get("aliases", [])
         parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'], aliases=aliases)
-        # if "aliases" in spec:
-        #     parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'], aliases=spec["aliases"])
-        # else:
-        #     parser_baz = subparser.add_parser(spec['name'], help=spec['desc'], description=spec['desc'])
         arg_tools.parser = parser
         arg_tools.subparsers[spec["name"]] = parser_baz
         return parser, parser_baz
@@ -59,18 +55,12 @@ class arg_tools:
 
     @staticmethod
     def process_subcommands(spec, subcommand_subparser):
-        # subcommand_parsers = {}
         for subcommand in spec['subcommands']:
             subcommand_name = subcommand['name']
             aliases = subcommand.get("aliases", [])
             subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'],
                                                                 description=subcommand['desc'],
                                                                 aliases=aliases)
-            # if "aliases" in subcommand:
-            #     subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'], description=subcommand['desc'], aliases=subcommand["aliases"])
-            # else:
-            #     subcommand_parser = subcommand_subparser.add_parser(subcommand_name, help=subcommand['desc'], description=subcommand['desc'])
-            # subcommand_parsers[subcommand_name] = subcommand_parser
             arg_tools.build_subparser_args(subcommand, subcommand_parser)
             if "subcommands" in subcommand:
                 subcommand_sp = subcommand_parser.add_subparsers(dest=subcommand['name'], description=spec['desc'])
