@@ -58,7 +58,7 @@ class SpecBuilder:
             "name": name
         }
         pos.update(kwargs)
-        self.flags.append(pos)
+        self.positionals.append(pos)
 
     def add_subcommand(self, subcommand: "SpecBuilder"):
         """
