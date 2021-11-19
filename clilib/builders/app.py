@@ -54,6 +54,7 @@ class EasyCLI:
             self.args = arg_tools.build_full_cli(self.spec.build())
             if self.args.subcommand not in self._sub_map:
                 arg_tools.parser.print_help()
+                exit(1)
             self._resolve_subcommand(self._obj, "subcommand")
             # arg_spec = inspect.getfullargspec(self._obj.__init__)
             # arg_spec.args.remove("self")
@@ -93,8 +94,10 @@ class EasyCLI:
                     f = self._sub_map[s]
                 m = getattr(o, f)
                 self._resolve_subcommand(m, s)
-
-
+                return None
+        if obj.__name__ != sub:
+            arg_tools.parser.print_help()
+            exit(1)
 
     def _setup_argparse(self):
         for flag in self.flag_spec:
