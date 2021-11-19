@@ -76,7 +76,7 @@ class EasyCLI:
         if inspect.isclass(obj):
             arg_spec = inspect.getfullargspec(obj.__init__)
         elif inspect.ismethod(obj):
-            arg_spec = inspect.getfullargspec(obj.__init__)
+            arg_spec = inspect.getfullargspec(obj)
         elif isinstance(obj, types.FunctionType):
             arg_spec = inspect.getfullargspec(obj)
         else:
