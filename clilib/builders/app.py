@@ -41,6 +41,10 @@ class EasyCLI:
         self.subcommand_spec = []
         self._sub_map = {}
         self.spec: SpecBuilder = SpecBuilder(self.name, self.desc.split("\n")[0])
+        self.aliases = re.findall(r':alias (.*):', self.desc)
+        if self.aliases is not None:
+            for alias in self.aliases:
+                self.spec.add_alias(alias)
         self._get_arguments()
         self._setup_argparse()
         if execute:
@@ -56,21 +60,6 @@ class EasyCLI:
                 arg_tools.parser.print_help()
                 exit(1)
             self._resolve_subcommand(self._obj, "subcommand")
-            # arg_spec = inspect.getfullargspec(self._obj.__init__)
-            # arg_spec.args.remove("self")
-            # arg_dict = {}
-            # for arg in arg_spec.args:
-            #     arg_dict[arg] = getattr(self.args, arg)
-            # o = self._obj(**arg_dict)
-            # m = getattr(o, self._sub_map[self.args.subcommand])
-            # sbcv = getattr(self.args, self.args.subcommand)
-            # print(sbcv)
-            # arg_spec = inspect.getfullargspec(m)
-            # arg_spec.args.remove("self")
-            # arg_dict = {}
-            # for arg in arg_spec.args:
-            #     arg_dict[arg] = getattr(self.args, arg)
-            # m(**arg_dict)
 
     def _resolve_subcommand(self, obj, sub: str):
         if inspect.isclass(obj):
@@ -95,9 +84,9 @@ class EasyCLI:
                 m = getattr(o, f)
                 self._resolve_subcommand(m, s)
                 return None
-        if obj.__name__ != sub:
-            arg_tools.parser.print_help()
-            exit(1)
+            else:
+                arg_tools.parser.print_help()
+                exit(1)
 
     def _setup_argparse(self):
         for flag in self.flag_spec:
@@ -150,6 +139,8 @@ class EasyCLI:
                 _m = getattr(self._obj, method)
                 _e = EasyCLI(_m, execute=False)
                 self._sub_map[_e.name] = _m.__name__
+                for alias in _e.spec.aliases:
+                    self._sub_map[alias] = _m.__name__
                 subcommand_spec.append(_e.spec)
         return subcommand_spec
 
@@ -169,7 +160,7 @@ class EasyCLI:
             help_matches = re.findall(rf":param {re.escape(positional)}: (.*)", self.desc)
             ty = self.anno.get(positional, str)
             p["type"] = ty
-            p["help"] = ": :".join(help_matches)
+            p["help"] = ", ".join(help_matches)
             p["name"] = positional
             p["metavar"] = positional.upper()
             if ty is list:
