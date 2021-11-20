@@ -4,7 +4,77 @@ clilib is a python library that does some automatic setup for cli applications. 
 
 ### Quickstart
 
-To start using clilib, you'll need an entry point file that looks like this:
+To quickly turn your function or class into a CLI application based on its arguments, defaults, annotations, and docstrings,
+you will need a file that looks something like this:
+```
+from clilib.util.logging import Logging
+from clilib.builders.app import EasyCLI
+
+
+class TestCommand:
+    """
+    A test command class
+    :param debug: Add additional debugging output.
+    """
+    def __init__(self, debug: bool = False):
+        self.debug = debug
+        self.logger = Logging("TestCommand", debug=debug).get_logger()
+
+    def hello(self, target: str):
+        """
+        Say hello
+        :param target: Target for message
+        :return:
+        """
+        self.logger.info("Hello %s" % target)
+
+    def goodbye(self, target: str = "World"):
+        """
+        Say goodbye
+        :param target: Target for message
+        :return:
+        """
+        self.logger.info("Goodbye %s" % target)
+
+    def _this_shouldnt_register(self):
+        self.logger.info("oh no!")
+
+
+if __name__ == "__main__":
+    e = EasyCLI(TestCommand)
+```
+It's that easy! You can now execute this script from the command line, and you'll be able to pass any arguments your class
+or function requires. 
+
+EasyCLI will register each method in a class (sans __init__) as a subcommand with the same name whereas the __init__ method defines
+the base arguments. Arguments with defaults are added as flags, arguments without defaults are positionals, and any class
+within your class is treated as a subcommand (with its own methods being added as subcommands to itself)
+
+EasyCLI requires a docstring in order to populate the help information for your command line application. EasyCLI will fail
+without the docstring present. This is intentional, because it makes you document your code more consistently :)
+
+With the above out of the way, EasyCLI will produce something similar to the following when passed a class:
+```
+usage: testapp.py [-h] [-d] {hello,goodbye} ...
+
+A test command class
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -d, --debug      Add additional debugging output.
+
+subcommands:
+  Available Subcommands
+
+  {hello,goodbye}
+    hello          Say hello
+    goodbye        Say goodbye
+```
+
+
+### Complex Configuration
+
+If you want to fine-tune your command line options more, you'll need an entry point file that looks like this:
 
 ```
 from clilib.builders.app import CLIApp
