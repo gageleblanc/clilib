@@ -12,27 +12,29 @@ class Logging:
         self._log_dir = Path(file_log_location)
         self._log_filename = self._log_dir.joinpath("%s.log" % self.name)
         self._logger = logging.getLogger(self.name)
-        self._logger.setLevel(logging.INFO)
-        self._config = self._get_logging_config()
-        if self._config is not None:
-            if "debug" in self._config.get_dict():
-                self._debug = self._config.debug
-            if "log_dir" in self._config.get_dict():
-                self._log_dir = self._config.log_dir
-            if "log_to_file" in self._config.get_dict():
-                file_log = self._config.log_to_file
-            if "console_log" in self._config.get_dict():
-                console_log = self._config.console_log
-        if log_desc is not None:
-            self._format = log_fmt.replace("LOGDESC", "[%s]" % log_desc)
-        else:
-            self._format = log_fmt.replace("LOGDESC", "")
-        self._log_formatter = logging.Formatter(fmt=self._format)
-        self._log_file_mode = file_log_mode
-        if console_log:
-            self._configure_console_handler()
-        if file_log:
-            self._configure_file_handler()
+        if not self._logger.hasHandlers():
+            self._logger.setLevel(logging.INFO)
+            self._config = self._get_logging_config()
+            if self._config is not None:
+                if "debug" in self._config.get_dict():
+                    self._debug = self._config.debug
+                if "log_dir" in self._config.get_dict():
+                    self._log_dir = Path(self._config.log_dir)
+                    self._log_filename = self._log_dir.joinpath("%s.log" % self.name)
+                if "log_to_file" in self._config.get_dict():
+                    file_log = self._config.log_to_file
+                if "console_log" in self._config.get_dict():
+                    console_log = self._config.console_log
+            if log_desc is not None:
+                self._format = log_fmt.replace("LOGDESC", "[%s]" % log_desc)
+            else:
+                self._format = log_fmt.replace("LOGDESC", "")
+            self._log_formatter = logging.Formatter(fmt=self._format)
+            self._log_file_mode = file_log_mode
+            if console_log:
+                self._configure_console_handler()
+            if file_log:
+                self._configure_file_handler()
 
     def get_logger(self):
         return self._logger
@@ -55,12 +57,12 @@ class Logging:
             if self._debug:
                 self._logger.warning("Skipping user logging config due to error: %s" % str(e))
         try:
-            config = ConfigLoader(config={**global_config, **user_config}, schema={"debug": bool, "log_to_file": bool, "log_dir": str, "console_log": bool}, from_obj=True).get_config()
+            global_config.update(user_config)
+            config = ConfigLoader(config=global_config, schema={"debug": bool, "log_to_file": bool, "log_dir": str, "console_log": bool}, from_obj=True).get_config()
         except Exception as e:
             config = None
             if self._debug:
                 self._logger.warning("Skipping logging config due to error: %s" % str(e))
-
         return config
 
     def _configure_console_handler(self):

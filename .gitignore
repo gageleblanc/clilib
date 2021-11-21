@@ -129,5 +129,10 @@ dmypy.json
 .pyre/
 
 .idea/workspace.xml
+*.local.xml
 
+test_script.py
 test_schema.py
+testapp.py
+tap/
+tap
