@@ -28,7 +28,7 @@ class EasyCLI:
         self._obj = obj
         if not isinstance(obj, types.FunctionType) and not inspect.isclass(obj):
             raise TypeError("EasyCLI requires class or method type, not %s" % str(type(obj)))
-        self.name = obj.__name__.lower()
+        self.name = obj.__name__.replace("_", "-").lower()
         self.desc = obj.__doc__.strip()
         self.anno = {}
         if isinstance(obj, types.FunctionType):
@@ -37,7 +37,7 @@ class EasyCLI:
             self.anno = obj.__init__.__annotations__
         self.flag_spec = []
         self.positional_spec = []
-        self._shortnames = []
+        self._shortnames = ["h"]
         self.subcommand_spec = []
         self._sub_map = {}
         self.spec: SpecBuilder = SpecBuilder(self.name, self.desc.split("\n")[0])
@@ -78,7 +78,7 @@ class EasyCLI:
         if sub in self.args:
             s = getattr(self.args, sub)
             if s:
-                f = s
+                f = s.replace("-", "_")
                 if s in self._sub_map:
                     f = self._sub_map[s]
                 m = getattr(o, f)
@@ -138,6 +138,7 @@ class EasyCLI:
             if hasattr(self._obj, method):
                 _m = getattr(self._obj, method)
                 _e = EasyCLI(_m, execute=False)
+                method_path = "%s.%s" % (self._obj.__name__, _m.__name__)
                 self._sub_map[_e.name] = _m.__name__
                 for alias in _e.spec.aliases:
                     self._sub_map[alias] = _m.__name__
@@ -185,7 +186,7 @@ class EasyCLI:
                 shortname = self._get_valid_shortname(flag)
                 if shortname is not None:
                     names.append(shortname)
-                names.append("--%s" % flag)
+                names.append("--%s" % flag.replace("_", "-"))
             else:
                 names.append("-%s" % flag)
             f["names"] = names

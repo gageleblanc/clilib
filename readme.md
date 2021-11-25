@@ -46,7 +46,7 @@ if __name__ == "__main__":
 It's that easy! You can now execute this script from the command line, and you'll be able to pass any arguments your class
 or function requires. 
 
-EasyCLI will register each method in a class (sans __init__) as a subcommand with the same name whereas the __init__ method defines
+EasyCLI will register each non-private method in a class (sans __init__) as a subcommand with the same name whereas the __init__ method defines
 the base arguments. Arguments with defaults are added as flags, arguments without defaults are positionals, and any class
 within your class is treated as a subcommand (with its own methods being added as subcommands to itself)
 
@@ -71,6 +71,11 @@ subcommands:
     goodbye        Say goodbye
 ```
 
+#### Notes:
+You should keep in mind when using EasyCLI that it is built to provide a simple, quick command line application. Some things
+to try and remember when using EasyCLI is that you should do your best to adhere to standard python naming conventions [(PEP8),](https://www.python.org/dev/peps/pep-0008/#naming-conventions)
+particularly lowercase, underscored method names are best for EasyCLI. EasyCLI will replace underscores in subcommand names
+and argument names with hyphens, and will ignore private class methods (methods whose names start with an underscore). 
 
 ### Complex Configuration
 
