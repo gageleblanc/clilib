@@ -39,7 +39,11 @@ class EasyCLI:
         self.positional_spec = []
         self._shortnames = ["h"]
         self.subcommand_spec = []
-        self._sub_map = {}
+        self.sub_map = {}
+        if inspect.isclass(self._obj):
+            self.sub_map["_class"] = self._obj.__name__
+        else:
+            self.sub_map = self._obj.__name__
         self.spec: SpecBuilder = SpecBuilder(self.name, self.desc.split("\n")[0])
         self.aliases = re.findall(r':alias (.*):', self.desc)
         if self.aliases is not None:
@@ -56,10 +60,86 @@ class EasyCLI:
             self._obj(**vars(self.args))
         elif inspect.isclass(self._obj):
             self.args = arg_tools.build_full_cli(self.spec.build())
-            if self.args.subcommand not in self._sub_map:
+            if self.args.subcommand not in self.sub_map:
                 arg_tools.parser.print_help()
                 exit(1)
-            self._resolve_subcommand(self._obj, "subcommand")
+            self._resolve_subcommand_path("subcommand")
+
+    def _get_func_kwargs(self, obj):
+        if inspect.isclass(obj):
+            arg_spec = inspect.getfullargspec(obj.__init__)
+        elif inspect.ismethod(obj):
+            arg_spec = inspect.getfullargspec(obj)
+        elif isinstance(obj, types.FunctionType):
+            arg_spec = inspect.getfullargspec(obj)
+        else:
+            raise TypeError("Unable to gather arguments from non-class or non-function types, got (%s)" % str(type(obj)))
+        arg_spec.args.remove("self")
+        arg_dict = {}
+        for arg in arg_spec.args:
+            arg_dict[arg] = getattr(self.args, arg)
+        return arg_dict
+
+    def _resolve_subcommand_path(self, sub: str):
+        ins = self._obj(**self._get_func_kwargs(self._obj))
+        if sub in self.args:
+            subcommand_name = getattr(self.args, sub)
+            if subcommand_name:
+                if subcommand_name in self.sub_map:
+                    if isinstance(self.sub_map[subcommand_name], dict):
+                        if hasattr(ins, self.sub_map[subcommand_name]["_class"]):
+                            obj = getattr(ins, self.sub_map[subcommand_name]["_class"])
+                            ins = obj(**self._get_func_kwargs(obj))
+                            sub_map = self.sub_map[subcommand_name]
+                            # print(ins)
+                            while inspect.isclass(obj):
+                                if subcommand_name in self.args:
+                                    subcommand_name = getattr(self.args, subcommand_name)
+                                    if subcommand_name in sub_map:
+                                        if isinstance(sub_map[subcommand_name], dict):
+                                            if hasattr(ins, sub_map[subcommand_name]["_class"]):
+                                                obj = getattr(ins, sub_map[subcommand_name]["_class"])
+                                                ins = obj(**self._get_func_kwargs(obj))
+                                                sub_map = sub_map[subcommand_name]
+                                            else:
+                                                print("clilib: EasyCLI: unable to find member %s in object %s." % (sub_map[subcommand_name]["_class"], str(ins)))
+                                                exit(1)
+                                        elif isinstance(sub_map[subcommand_name], str):
+                                            if hasattr(ins, sub_map[subcommand_name]):
+                                                obj = getattr(ins, sub_map[subcommand_name])
+                                                ins = obj(**self._get_func_kwargs(obj))
+                                            else:
+                                                print("clilib: EasyCLI: unable to find member %s in object %s." % (sub_map[subcommand_name], str(ins)))
+                                                exit(1)
+                                        else:
+                                            print("clilib: EasyCLI: unable to decipher subcommand path from given arguments")
+                                            exit(1)
+                                    else:
+                                        print("Invalid arguments!")
+                                        arg_tools.parser.print_help()
+                                        break
+                                else:
+                                    print("Invalid subcommand: %s" % subcommand_name)
+                                    arg_tools.parser.print_help()
+                        else:
+                            print("clilib: EasyCLI: unable to decipher subcommand path from given arguments")
+                            exit(1)
+                    elif isinstance(self.sub_map[subcommand_name], str):
+                        if hasattr(ins, self.sub_map[subcommand_name]):
+                            obj = getattr(ins, self.sub_map[subcommand_name])
+                            ins = obj(**self._get_func_kwargs(obj))
+                        else:
+                            print("clilib: EasyCLI: unable to find member %s in object %s." % (self.sub_map[subcommand_name], str(ins)))
+                            exit(1)
+                else:
+                    arg_tools.parser.print_help()
+                    exit(1)
+            else:
+                arg_tools.parser.print_help()
+                exit(1)
+        else:
+            arg_tools.parser.print_help()
+            exit(1)
 
     def _resolve_subcommand(self, obj, sub: str):
         if inspect.isclass(obj):
@@ -79,8 +159,8 @@ class EasyCLI:
             s = getattr(self.args, sub)
             if s:
                 f = s.replace("-", "_")
-                if s in self._sub_map:
-                    f = self._sub_map[s]
+                if s in self.sub_map:
+                    f = self.sub_map[s]
                 m = getattr(o, f)
                 self._resolve_subcommand(m, s)
                 return None
@@ -139,9 +219,9 @@ class EasyCLI:
                 _m = getattr(self._obj, method)
                 _e = EasyCLI(_m, execute=False)
                 method_path = "%s.%s" % (self._obj.__name__, _m.__name__)
-                self._sub_map[_e.name] = _m.__name__
+                self.sub_map[_e.name] = _e.sub_map
                 for alias in _e.spec.aliases:
-                    self._sub_map[alias] = _m.__name__
+                    self.sub_map[alias] = _e.sub_map
                 subcommand_spec.append(_e.spec)
         return subcommand_spec
 
