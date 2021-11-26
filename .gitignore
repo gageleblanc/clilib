@@ -131,4 +131,7 @@ dmypy.json
 .idea/workspace.xml
 *.local.xml
 
+test_script.py
 test_schema.py
+tap/
+tap
