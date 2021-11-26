@@ -141,33 +141,6 @@ class EasyCLI:
             arg_tools.parser.print_help()
             exit(1)
 
-    def _resolve_subcommand(self, obj, sub: str):
-        if inspect.isclass(obj):
-            arg_spec = inspect.getfullargspec(obj.__init__)
-        elif inspect.ismethod(obj):
-            arg_spec = inspect.getfullargspec(obj)
-        elif isinstance(obj, types.FunctionType):
-            arg_spec = inspect.getfullargspec(obj)
-        else:
-            raise TypeError("Unable to resolve subcommand path")
-        arg_spec.args.remove("self")
-        arg_dict = {}
-        for arg in arg_spec.args:
-            arg_dict[arg] = getattr(self.args, arg)
-        o = obj(**arg_dict)
-        if sub in self.args:
-            s = getattr(self.args, sub)
-            if s:
-                f = s.replace("-", "_")
-                if s in self.sub_map:
-                    f = self.sub_map[s]
-                m = getattr(o, f)
-                self._resolve_subcommand(m, s)
-                return None
-            else:
-                arg_tools.parser.print_help()
-                exit(1)
-
     def _setup_argparse(self):
         for flag in self.flag_spec:
             names = flag["names"]

@@ -49,13 +49,14 @@ class TestApp:
         self.debug = debug
         self.logger = Logging("TestApp", debug=debug).get_logger()
 
-    def foo(self, suffix: str = "Default Suffix"):
+    def foo(self, suffix_one: str = "Default Suffix"):
         """
         Foo Command
         """
-        self.logger.info("Foo! %s." % suffix)
+        self.logger.info("Foo! %s." % suffix_one)
 
     SubcommandClass = SubcommandClass
 
 
-EasyCLI(TestApp)
+if __name__ == "__main__":
+    EasyCLI(TestApp)
