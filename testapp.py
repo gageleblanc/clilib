@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from clilib.config.config_loader import JSONConfigurationFile
 from clilib.util.logging import Logging
 from clilib.builders.app import EasyCLI
 from clilib.util.util import SchemaValidator
@@ -60,28 +61,9 @@ class TestApp:
         """
         Test schema validator
         """
-        schema = {
-            "foo": str,
-            "bar": {
-                "baz": str,
-                "boop": int,
-                "same": {
-                    "another": str
-                }
-            }
-        }
-        data = {
-            "foo": "bar",
-            "bar": {
-                "baz": "stinky",
-                "boop": 5,
-                "same": {
-                    "another": "helllo"
-                }
-            }
-        }
-        validator = SchemaValidator(schema, True)
-        validator.validate(data)
+        schema = {"console_log": bool, "log_to_file": bool, "log_dir": str}
+        config = JSONConfigurationFile("/home/gleblanc/.config/clilib/logging.json", schema=schema)
+        print(config["console_log"])
 
     SubcommandClass = SubcommandClass
 

@@ -1,4 +1,4 @@
-from clilib.util.util import Util
+from clilib.util.util import SchemaValidator, Util
 from pathlib import Path
 from clilib.config.config import Config
 import json
@@ -90,3 +90,24 @@ class ConfigLoader:
 
     def get_config(self):
         return Config(self.config, self.config_file)
+
+class JSONConfigurationFile:
+    def __init__(self, config_path: str, schema: dict = None, schema_strict: bool = False):
+        self.__config_path = Path(config_path)
+        self.__schema = schema
+        self.__config_data = {}
+        self.__schema_strict = schema_strict
+        self.__validator = None
+        if self.__schema is not None:
+            self.__validator = SchemaValidator(self.__schema, schema_strict)
+        self._load_file()
+
+    def __getitem__(self, item):
+        return self.__config_data[item]
+
+    def _load_file(self):
+        with open(self.__config_path, 'rb') as f:
+            config_data = json.load(f)
+            if self.__validator is not None:
+                self.__validator.validate(config_data)
+            self.__config_data = config_data
