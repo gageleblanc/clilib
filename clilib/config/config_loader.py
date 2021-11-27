@@ -1,3 +1,4 @@
+from clilib.util.dict import dict_path
 from clilib.util.util import SchemaValidator, Util
 from pathlib import Path
 from clilib.config.config import Config
@@ -114,6 +115,9 @@ class JSONConfigurationFile:
             self.__validator = SchemaValidator(self.__schema, schema_strict)
         self._load_file()
 
+    def __call__(self, path: str):
+        return dict_path(self.__config_data, path)
+
     def __getitem__(self, item):
         return self.__config_data[item]
 
@@ -173,6 +177,9 @@ class YAMLConfigurationFile:
         if self.__schema is not None:
             self.__validator = SchemaValidator(self.__schema, schema_strict)
         self._load_file()
+
+    def __call__(self, path: str):
+        return dict_path(self.__config_data, path)
 
     def __getitem__(self, item):
         return self.__config_data[item]
