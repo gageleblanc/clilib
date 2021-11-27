@@ -5,8 +5,14 @@ from clilib.config.config_loader import ConfigLoader
 
 
 class Logging:
-    def __init__(self, log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s]LOGDESC[%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = "/var/log", file_log_mode: str = 'a+', debug: bool = False):
+    def __init__(self, log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = "/var/log", file_log_mode: str = 'a+', app_name: str = None, debug: bool = False):
         self.name = log_name
+        if log_desc is not None:
+            self.name = "%s][%s" % (log_name, log_desc)
+        if app_name is not None:
+            self._app_name = app_name
+        else:
+            self._app_name = self.name.lower().replace("][", "_")
         self._debug = debug
         self._log_suffix = log_desc
         self._log_dir = Path(file_log_location)
@@ -25,10 +31,6 @@ class Logging:
                     file_log = self._config.log_to_file
                 if "console_log" in self._config.get_dict():
                     console_log = self._config.console_log
-            if log_desc is not None:
-                self._format = log_fmt.replace("LOGDESC", "[%s]" % log_desc)
-            else:
-                self._format = log_fmt.replace("LOGDESC", "")
             self._log_formatter = logging.Formatter(fmt=self._format)
             self._log_file_mode = file_log_mode
             if console_log:
@@ -40,8 +42,8 @@ class Logging:
         return self._logger
 
     def _get_logging_config(self):
-        global_config_path = Path("/etc/clilib/config/logging.json")
-        user_config_path = Path.home().joinpath(".config").joinpath("clilib").joinpath("logging.json")
+        global_config_path = Path("/etc/clilib/config").joinpath(self._app_name).joinpath("logging.json")
+        user_config_path = Path.home().joinpath(".config").joinpath("clilib").joinpath(self._app_name).joinpath("logging.json")
         global_config = {}
         user_config = {}
         try:

@@ -49,7 +49,8 @@ class TestApp:
         """
         """
         self.debug = debug
-        self.logger = Logging("TestApp", debug=debug).get_logger()
+        self.logger = Logging("TestApp", "TopLevel", debug=debug).get_logger()
+        self.logger.info("Top level logger, should be able to register another one with the same name and a different description.")
 
     def foo(self, suffix_one: str = "Default Suffix"):
         """
@@ -61,9 +62,13 @@ class TestApp:
         """
         Test schema validator
         """
+        logger = Logging("TestApp", "Config", debug = self.debug).get_logger()
         schema = {"console_log": bool, "log_to_file": bool, "log_dir": str}
         config = JSONConfigurationFile("/home/gleblanc/.config/clilib/logging.json", schema=schema)
-        print(config["console_log"])
+        logger.debug(config)
+        logger.info(config["console_log"])
+        config["console_log"] = False
+        logger.info(config["console_log"])
 
     SubcommandClass = SubcommandClass
 

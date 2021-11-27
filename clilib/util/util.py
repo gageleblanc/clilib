@@ -91,7 +91,7 @@ class SchemaValidator:
                 if isinstance(value, dict):
                     self._validate_dict(value, key)
                 elif not isinstance(value, value_type):
-                    raise TypeError("Key %s expected to be type '%s' but got type '%s'" % (key, value_type, type(value)))
+                    raise TypeError("Key '%s' expected to be type '%s' but got type '%s'" % (key, value_type, type(value)))
 
     def _validate_dict(self, subject: dict, path: str = "."):
         schema = dict_path(self.schema, path)
