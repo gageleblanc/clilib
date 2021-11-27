@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from clilib.util.logging import Logging
 from clilib.builders.app import EasyCLI
+from clilib.util.util import SchemaValidator
 
 
 class Baz:
@@ -54,6 +55,33 @@ class TestApp:
         Foo Command
         """
         self.logger.info("Foo! %s." % suffix_one)
+
+    def validate_config(self):
+        """
+        Test schema validator
+        """
+        schema = {
+            "foo": str,
+            "bar": {
+                "baz": str,
+                "boop": int,
+                "same": {
+                    "another": str
+                }
+            }
+        }
+        data = {
+            "foo": "bar",
+            "bar": {
+                "baz": "stinky",
+                "boop": 5,
+                "same": {
+                    "another": "helllo"
+                }
+            }
+        }
+        validator = SchemaValidator(schema, True)
+        validator.validate(data)
 
     SubcommandClass = SubcommandClass
 
