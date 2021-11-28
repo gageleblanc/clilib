@@ -1,7 +1,9 @@
-from clilib.util.util import Util
+from clilib.util.dict import dict_path
+from clilib.util.util import SchemaValidator, Util
 from pathlib import Path
 from clilib.config.config import Config
 import json
+import yaml
 
 
 class ConfigLoader:
@@ -90,3 +92,124 @@ class ConfigLoader:
 
     def get_config(self):
         return Config(self.config, self.config_file)
+
+
+class JSONConfigurationFile:
+    def __init__(self, config_path: str, schema: dict = None, schema_strict: bool = False, auto_create: dict = None, write_on_set: bool = False):
+        """
+        Load JSON configuration file from disk, use auto_create if not None and file does not exist.
+        :param config_path: Path to configuration file
+        :param schema: Validation schema for validating loaded config. This is optional
+        :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
+        :param auto_create: Dictionary of defaults for auto creation, or None
+        :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
+        """
+        self.__config_path = Path(config_path)
+        self.__schema = schema
+        self.__config_data = {}
+        self.__schema_strict = schema_strict
+        self.__validator = None
+        self.__auto_create = auto_create
+        self.__write_on_set = write_on_set
+        if self.__schema is not None:
+            self.__validator = SchemaValidator(self.__schema, schema_strict)
+        self._load_file()
+
+    def __call__(self, path: str):
+        return dict_path(self.__config_data, path)
+
+    def __getitem__(self, item):
+        return self.__config_data[item]
+
+    def __setitem__(self, item, value):
+        config_data = self.__config_data.copy()
+        config_data[item] = value
+        if self.__validator is not None:
+            self.__validator.validate(config_data)
+        self.__config_data = config_data
+        if self.__write_on_set:
+            self.write()
+
+    def _load_file(self):
+        try:
+            with open(self.__config_path, 'rb') as f:
+                config_data = json.load(f)
+                if self.__validator is not None:
+                    self.__validator.validate(config_data)
+                self.__config_data = config_data
+        except FileNotFoundError as e:
+            if self.__auto_create is not None:
+                config_data = self.__auto_create.copy()
+                if self.__validator is not None:
+                    self.__validator.validate(config_data)
+                self.__config_data = config_data
+                self.write()
+            else:
+                raise e
+
+    def write(self):
+        with open(self.__config_path, 'wb') as f:
+            json.dump(self.__config_data, f)
+
+
+class YAMLConfigurationFile:
+
+    class NoAliasDumper(yaml.SafeDumper):
+        def ignore_aliases(self, data):
+            return True
+
+    def __init__(self, config_path: str, schema: dict = None, schema_strict: bool = False, auto_create: dict = None, write_on_set: bool = False):
+        """
+        Load YAML configuration file from disk, use auto_create if not None and file does not exist.
+        :param config_path: Path to configuration file
+        :param schema: Validation schema for validating loaded config. This is optional
+        :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
+        :param auto_create: Dictionary of defaults for auto creation, or None
+        :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
+        """
+        self.__config_path = Path(config_path)
+        self.__schema = schema
+        self.__config_data = {}
+        self.__schema_strict = schema_strict
+        self.__validator = None
+        self.__auto_create = auto_create
+        self.__write_on_set = write_on_set
+        if self.__schema is not None:
+            self.__validator = SchemaValidator(self.__schema, schema_strict)
+        self._load_file()
+
+    def __call__(self, path: str):
+        return dict_path(self.__config_data, path)
+
+    def __getitem__(self, item):
+        return self.__config_data[item]
+
+    def __setitem__(self, item, value):
+        config_data = self.__config_data.copy()
+        config_data[item] = value
+        if self.__validator is not None:
+            self.__validator.validate(config_data)
+        self.__config_data = config_data
+        if self.__write_on_set:
+            self.write()
+
+    def _load_file(self):
+        try:
+            with open(self.__config_path, 'rb') as f:
+                config_data = yaml.safe_load(f)
+                if self.__validator is not None:
+                    self.__validator.validate(config_data)
+                self.__config_data = config_data
+        except FileNotFoundError as e:
+            if self.__auto_create is not None:
+                config_data = self.__auto_create.copy()
+                if self.__validator is not None:
+                    self.__validator.validate(config_data)
+                self.__config_data = config_data
+                self.write()
+            else:
+                raise e
+
+    def write(self):
+        with open(self.__config_path, 'wb') as f:
+            f.write(yaml.dump(self.__config_data, Dumper=YAMLConfigurationFile.NoAliasDumper))
