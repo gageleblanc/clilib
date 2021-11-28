@@ -69,6 +69,7 @@ class TestApp:
         logger.info(config["console_log"])
         config["console_log"] = False
         logger.info(config["console_log"])
+        logger.info(config(".console_log"))
 
     SubcommandClass = SubcommandClass
 

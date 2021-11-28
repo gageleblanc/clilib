@@ -31,7 +31,7 @@ class Logging:
                     file_log = self._config.log_to_file
                 if "console_log" in self._config.get_dict():
                     console_log = self._config.console_log
-            self._log_formatter = logging.Formatter(fmt=self._format)
+            self._log_formatter = logging.Formatter(fmt=log_fmt)
             self._log_file_mode = file_log_mode
             if console_log:
                 self._configure_console_handler()
