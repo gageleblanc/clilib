@@ -31,7 +31,7 @@ class EasyCLI:
         self.name = obj.__name__.replace("_", "-").lower()
         self.desc = obj.__doc__.strip()
         if inspect.isclass(obj):
-            self.desc += obj.__init__.__doc__.strip()
+            self.desc += "\r\n%s" % obj.__init__.__doc__.strip()
         self.anno = {}
         if isinstance(obj, types.FunctionType):
             self.anno = obj.__annotations__
