@@ -1,6 +1,8 @@
 import logging
 import argparse
 import sys
+from clilib.util.dict import dict_path
+from clilib.util.errors import SchemaException
 
 
 class Util:
@@ -72,3 +74,33 @@ class Util:
                 return valid[choice]
             else:
                 sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
+
+
+class SchemaValidator:
+    def __init__(self, schema: dict, strict: bool = False):
+        self.schema = schema
+        self.strict = strict
+
+    def validate(self, subject: dict):
+        for key, value_type in self.schema.items():
+            if self.strict:
+                if key not in subject:
+                    raise SchemaException("SchemaValidator: missing key %s" % key)
+            value = subject.get(key, None)
+            if value is not None:
+                if isinstance(value, dict):
+                    self._validate_dict(value, key)
+                elif not isinstance(value, value_type):
+                    raise TypeError("Key '%s' expected to be type '%s' but got type '%s'" % (key, value_type, type(value)))
+
+    def _validate_dict(self, subject: dict, path: str = "."):
+        schema = dict_path(self.schema, path)
+        for key, value_type in schema.items():
+            value = subject.get(key, None)
+            if self.strict:
+                if value is None:
+                    raise SchemaException("SchemaValidator: missing key %s" % key)
+            if isinstance(value, dict):
+                self._validate_dict(value, "%s.%s" % (path, key))
+            elif not isinstance(value, value_type):
+                raise TypeError("Key '%s' expected to be type '%s' but got type '%s'" % (key, value_type, type(value)))

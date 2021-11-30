@@ -30,6 +30,8 @@ class EasyCLI:
             raise TypeError("EasyCLI requires class or method type, not %s" % str(type(obj)))
         self.name = obj.__name__.replace("_", "-").lower()
         self.desc = obj.__doc__.strip()
+        if inspect.isclass(obj):
+            self.desc += "\r\n%s" % obj.__init__.__doc__.strip()
         self.anno = {}
         if isinstance(obj, types.FunctionType):
             self.anno = obj.__annotations__
@@ -93,6 +95,10 @@ class EasyCLI:
                             sub_map = self.sub_map[subcommand_name]
                             # print(ins)
                             while inspect.isclass(obj):
+                                if subcommand_name not in self.args:
+                                    # replace alias
+                                    if isinstance(sub_map, dict):
+                                        subcommand_name = sub_map["_class"].lower()
                                 if subcommand_name in self.args:
                                     subcommand_name = getattr(self.args, subcommand_name)
                                     if subcommand_name in sub_map:
@@ -117,10 +123,11 @@ class EasyCLI:
                                     else:
                                         print("Invalid arguments!")
                                         arg_tools.parser.print_help()
-                                        break
+                                        exit(1)
                                 else:
-                                    print("Invalid subcommand: %s" % subcommand_name)
+                                    print("Invalid arguments!")
                                     arg_tools.parser.print_help()
+                                    exit(1)
                         else:
                             print("clilib: EasyCLI: unable to decipher subcommand path from given arguments")
                             exit(1)
