@@ -95,6 +95,10 @@ class EasyCLI:
                             sub_map = self.sub_map[subcommand_name]
                             # print(ins)
                             while inspect.isclass(obj):
+                                if subcommand_name not in self.args:
+                                    # replace alias
+                                    if isinstance(sub_map, dict):
+                                        subcommand_name = sub_map["_class"].lower()
                                 if subcommand_name in self.args:
                                     subcommand_name = getattr(self.args, subcommand_name)
                                     if subcommand_name in sub_map:
