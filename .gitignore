@@ -135,3 +135,5 @@ test_script.py
 test_schema.py
 tap/
 tap
+idea
+idea/
