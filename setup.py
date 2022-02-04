@@ -8,6 +8,9 @@ setuptools.setup(
     name='clilib',
     version=clilib.__version__,
     scripts=[],
+    entry_points={
+        'console_scripts': ["wheel_utils = clilib.util.wheel:cli"]
+    },
     author="Gage LeBlanc",
     author_email="gleblanc@symnet.io",
     description="A library for setting up cli applications",
