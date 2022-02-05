@@ -171,6 +171,8 @@ class EasyCLI:
         for method in methods:
             if hasattr(self._obj, method):
                 _m = getattr(self._obj, method)
+                if ":easycli_ignore:" in _m.__doc__:
+                    continue
                 _e = EasyCLI(_m, execute=False)
                 method_path = "%s.%s" % (self._obj.__name__, _m.__name__)
                 self.sub_map[_e.name] = _e.sub_map
