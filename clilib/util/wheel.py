@@ -3,9 +3,11 @@ from clilib.util.logging import Logging
 from clilib.builders.app import EasyCLI
 from pathlib import Path
 import subprocess
+import tarfile
 import distutils.core
 import shutil
 import json
+import sys
 import os
 
 
@@ -20,23 +22,40 @@ class WheelUtils:
         """
         if working_directory is None:
             working_directory = os.getcwd()
+        os.chdir(working_directory)
+        sys.path.append(working_directory)
         self.working_directory = Path(working_directory)
         self.logger = Logging("WheelUtils", debug=debug).get_logger()
         setup_path = self.working_directory.joinpath("setup.py")
         self._setup = distutils.core.run_setup(str(setup_path))
 
-    def build_archive(self, python_executable: str = None, pip_executable: str = None):
+    def build_archive(self, python_executable: str = None, pip_executable: str = None, archive_type: str = None, compression: str = None):
         """
         Build archive of current project and it's requirements, installable locally without internet.
         :param python_executable: Python executable to use for building wheel. Default is python3
         :param pip_executable: Path to pip executable. Default is pip3.
+        :param archive_type: Type of archive to create. Default is zip, tar is also allowed.
+        :param compression: Type of compression to use. Default is gz. This is only used for tar archive type.
         """
+        if compression is None:
+            compression = "gz"
+        if archive_type is None:
+            archive_type = "zip"
         output_path = self.working_directory.joinpath("dist")
         self.build_wheel(python_executable)
         self.fetch_requirements(output=str(output_path), pip_executable=pip_executable)
         archive_path = self.working_directory.joinpath("%s_with_requirements" % self._setup.get_name())
-        self.logger.info("Creating archive at [%s.zip]" % str(archive_path))
-        shutil.make_archive(str(archive_path), 'zip', str(output_path))
+        if archive_type == "zip":
+            self.logger.info("Creating archive at [%s.zip]" % str(archive_path))
+            shutil.make_archive(str(archive_path), 'zip', str(output_path))
+        elif archive_type == "tar":
+            self.logger.info("Creating archive at [%s.tar] ..." % str(archive_path))
+            with tarfile.open(str(archive_path) + ".tar", "w:%s" % compression) as tar:
+                files = os.listdir(str(output_path))
+                for file in files:
+                    self.logger.info("Adding file [%s] to archive" % file)
+                    tar.add(str(output_path.joinpath(file)), arcname=file)
+            self.logger.info("Archive created successfully.")
 
     def build_wheel(self, python_executable: str = None):
         """
@@ -45,6 +64,9 @@ class WheelUtils:
         """
         if python_executable is None:
             python_executable = "python3"
+        self.logger.info("Cleanup build environment ...")
+        shutil.rmtree("./build")
+        shutil.rmtree("./dist")
         self.logger.info("Building wheel from setup.py ...")
         command = [python_executable, "setup.py", "bdist_wheel"]
         self.logger.debug("Running command: [%s]" % " ".join(command))
