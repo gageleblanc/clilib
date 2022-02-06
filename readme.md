@@ -14,35 +14,23 @@ from clilib.builders.app import EasyCLI
 class TestCommand:
     """
     A test command class
-    :param debug: Add additional debugging output.
     """
     def __init__(self, debug: bool = False):
+        """
+        :param debug: Add additional debugging output.
+        """
         self.debug = debug
         self.logger = Logging("TestCommand", debug=debug).get_logger()
 
-    def hello(self, target: str):
-        """
-        Say hello
-        :param target: Target for message
-        :return:
-        """
-        self.logger.info("Hello %s" % target)
-
-    def goodbye(self, target: str = "World"):
-        """
-        Say goodbye
-        :param target: Target for message
-        :return:
-        """
-        self.logger.info("Goodbye %s" % target)
-
-    def _this_shouldnt_register(self):
-        self.logger.info("oh no!")
+    ...
 
 
 if __name__ == "__main__":
     e = EasyCLI(TestCommand)
 ```
+
+For a working example (an application included with the library that uses EasyCLI) check out [clilib.util.wheel](https://github.com/gageleblanc/clilib/blob/master/clilib/util/wheel.py).
+
 It's that easy! You can now execute this script from the command line, and you'll be able to pass any arguments your class
 or function requires. 
 
@@ -71,120 +59,31 @@ subcommands:
     goodbye        Say goodbye
 ```
 
+Some EasyCLI option highlights:
+* `enable_logging` (default False) will enable file logging of the CLI generation (by default, to /var/log/clilib/EasyCLI.log)
+* `print_return` (default False) will enable printing the return statement of the method your command resolves to.
+* `dump_json` (default True) will dump a list or dict return value to json before printing it. (only effective if `print_return` is true)
+
 #### Notes:
 You should keep in mind when using EasyCLI that it is built to provide a simple, quick command line application. Some things
 to try and remember when using EasyCLI is that you should do your best to adhere to standard python naming conventions [(PEP8),](https://www.python.org/dev/peps/pep-0008/#naming-conventions)
 particularly lowercase, underscored method names are best for EasyCLI. EasyCLI will replace underscores in subcommand names
 and argument names with hyphens, and will ignore private class methods (methods whose names start with an underscore). 
 
-### Complex Configuration
+You may also tell EasyCLI to ignore a method in your class by putting ":easycli_ignore:" in its docstring.
 
-If you want to fine-tune your command line options more, you'll need an entry point file that looks like this:
+### SearchableDict
 
-```
-from clilib.builders.app import CLIApp
+SearchableDict is a class that works just like a regular dict with the added functionality of being able to get and set 
+values based on simple dot separated pathing.
 
-def main():
-    test_app = CLIApp()
-    # New CLIApp allows for aliases
-    test_app.add_subcommand("hello", "path.to.module.cli")
-    test_app.add_subcommand("world", "path.to.module.cli")
-    test_app.add_subcommand("another", "path.to.another.module")
-    test_app.start_app()
-
-if __name__ == "__main__":
-    main()
-
+Example:
 ```
-A clilib command needs to be the path to a module with a callable attribute 'main' i.e.:
+>>> from clilib.util.dict import SearchableDict
+>>> d = SearchableDict()
+>>> d.set_path("foo.bar", "baz")
+>>> d.get_path("foo.bar")
+'baz'
+>>> d.get_path("foo.baz", "None!")
+'None!'
 ```
-path.to.module
-|-- __init__.py
-|-- cli.py
-```
-With clilib 3.0, you can use either the `SpecBuilder` or build your argument spec manually, however `SpecBuilder` will
-output a format that is valid with arg_tools.
-
-Manually building spec:
-```
-spec = {
-    "name": "hello",
-    "desc": "Command containing hello world stuff!",
-    "flags": [
-        {"names": ["-d", "--debug"], "action": "store_true", "required": False, "default": False, "help": "Print extra debug information"}
-    ],
-    "positionals": [],
-    "subcommands": []
-}
-```
-Using `SpecBuilder` to build spec:
-```
-spec_builder = SpecBuilder("hello", "Command containing hello world stuff!")
-spec_builder.add_flag("-d", "--debug", action="store_true", required=False, default=False, help="Print extra debug information")
-```
-`SpecBuilder` is also compatible with adding subcommands simply by creating another `SpecBuilder` instance with your subcommmand
-configuration
-
-Adding subcommands with `SpecBuilder`:
-```
-subcommand_builder = SpecBuilder("foo", "fooey")
-spec_builder.add_subcommand(subcommand_builder)
-```
-So when you run `<cmd> hello` it will execute code within `main` from `path.to.module.cli`. Your cli.py (or equivalent)
-will most likely look similar to the below:
-```
-from clilib.util.arg_tools import arg_tools
-from clilib.builders.spec import SpecBuilder
-from clilib.util.logging import Logging
-
-
-class TestApp:
-    def __init__(self):
-        spec_builder = SpecBuilder("hello", "Command containing hello world stuff!")
-        # Add alias with spec builder, or manually with in dict
-        spec_builder.add_alias("world")
-        spec_builder.add_flag("-d", "--debug", action="store_true", required=False, default=False, help="Print extra debug information")
-        spec = spec_builder.build()
-        args = arg_tools.build_full_subparser(spec)
-        self.args = args
-        self.logger = Logging("TestApp", debug=self.args.debug).get_logger()
-        self.logger.debug(args)
-        self.logger.info("Hello World!")
-
-# Run our app
-# Any code can go in main(), and doesn't have to be defined in the same file
-def main():
-    TestApp()
-```
-You can also manually build your parser if you need more flexibility. Instead of using `build_full_subparser`,
-you can use `build_full_parser`, which will return a `parser, subparser` tuple. You can use these to manually
-add arguments as shown below:
-```
-from clilib.util.util import Util
-from clilib.util.arg_tools import arg_tools
-
-
-def main():
-    self.command_methods = {
-        'off': self.light_off,
-        'on': self.light_on
-    }
-    self.spec = {
-        "desc": 'Switch lights on and off. Supported subcommands are: {}'.format(", ".join(self.command_methods.keys())),
-        "name": 'switch'
-    }
-    parser, subparser = arg_tools.build_full_parser(self.spec)
-    subparser.add_argument('subcommand', metavar='SUBCOMMAND', help='Subcommand for switch command.', default=False)
-    subparser.add_argument('id', metavar='ID', help='ID of the light or group to manipulate', type=int,
-                           default=False)
-    subparser.add_argument('-d', '--debug', help="Add extended output.", required=False, default=False,
-                               action='store_true')
-    subparser.add_argument('-g', '--group', help="Switch group instead of light.", required=False, default=False,
-                           action='store_true')
-    args = parser.parse_args()
-    self.args = args
-    self.args.logger = Util.configure_logging(args, __name__)
-    self.command_methods[args.subcommand]()
-```
-However, setting up a subparser is not necessary. You can simply start executing your own logic as soon as `main` is
-executed, if that works for you.

@@ -95,7 +95,11 @@ class WheelUtils:
         """
         Return install requirements as json
         """
-        print(json.dumps(self._setup.install_requires))
+        if hasattr(self._setup, "install_requires"):
+            return self._setup.install_requires
+        else:
+            self.logger.warn("Setup missing 'install_requires' attribute!")
+            return []
 
 
 def cli():
