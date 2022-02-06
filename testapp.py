@@ -57,6 +57,7 @@ class TestApp:
         Foo Command
         """
         self.logger.info("Foo! %s." % suffix_one)
+        return ["Foo! %s.", suffix_one]
 
     def validate_config(self):
         """
@@ -75,4 +76,4 @@ class TestApp:
 
 
 if __name__ == "__main__":
-    EasyCLI(TestApp)
+    EasyCLI(TestApp, print_return=True)

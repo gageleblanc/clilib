@@ -1,6 +1,7 @@
 import importlib
 import argparse
 import inspect
+import json
 import re
 import types
 
@@ -24,11 +25,15 @@ DEFAULT_POSITIONAL_SPEC = {
 
 class EasyCLI:
     args: argparse.Namespace
-    def __init__(self, obj, execute: bool = True):
+    def __init__(self, obj, execute: bool = True, enable_logging: bool = False, debug: bool = False, log_location: str = "/var/log", print_return: bool = False, dump_json: bool = True):
+        self.logger = Logging("clilib", "EasyCLI", console_log=False, file_log=enable_logging, file_log_location=log_location, debug=debug).get_logger()
+        self.print_return = print_return
+        self.dump_json = dump_json
         self._obj = obj
         if not isinstance(obj, types.FunctionType) and not inspect.isclass(obj):
             raise TypeError("EasyCLI requires class or method type, not %s" % str(type(obj)))
         self.name = obj.__name__.replace("_", "-").lower()
+        self.logger.info("EasyCLI analyzing given object: %s" % self.name)
         self.desc = obj.__doc__.strip()
         if inspect.isclass(obj):
             self.desc += "\r\n%s" % obj.__init__.__doc__.strip()
@@ -57,22 +62,32 @@ class EasyCLI:
             self.execute_cli()
 
     def execute_cli(self):
+        self.logger.info("Executing generated CLI application for [%s]" % self.name)
+        self.logger.info("Argparse spec: %s" % str(self.spec.build()))
         if isinstance(self._obj, types.FunctionType):
             self.args = arg_tools.build_simple_parser(self.spec.build())
+            self.logger.info(self.args)
             self._obj(**vars(self.args))
         elif inspect.isclass(self._obj):
             self.args = arg_tools.build_full_cli(self.spec.build())
-            if self.args.subcommand not in self.sub_map:
-                arg_tools.parser.print_help()
-                exit(1)
-            self._resolve_subcommand_path("subcommand")
+            self.logger.info(self.args)
+            if len(self.subcommand_spec) > 0:
+                if self.args.subcommand not in self.sub_map:
+                    arg_tools.parser.print_help()
+                    exit(1)
+                self._resolve_subcommand_path("subcommand")
+            else:
+                self._obj(**self._get_func_kwargs(self._obj))
 
     def _get_func_kwargs(self, obj):
         if inspect.isclass(obj):
+            self.logger.info("object [%s] is class" % self.name)
             arg_spec = inspect.getfullargspec(obj.__init__)
         elif inspect.ismethod(obj):
+            self.logger.info("object [%s] is method" % self.name)
             arg_spec = inspect.getfullargspec(obj)
         elif isinstance(obj, types.FunctionType):
+            self.logger.info("object [%s] is function" % self.name)
             arg_spec = inspect.getfullargspec(obj)
         else:
             raise TypeError("Unable to gather arguments from non-class or non-function types, got (%s)" % str(type(obj)))
@@ -121,22 +136,31 @@ class EasyCLI:
                 print("Invalid arguments!")
                 arg_tools.parser.print_help()
                 exit(1)
+        else:
+            if ins is not None and self.print_return:
+                if (isinstance(ins, dict) or isinstance(ins, list)) and self.dump_json:
+                    ins = json.dumps(ins)
+                print(ins)
 
     def _setup_argparse(self):
         for flag in self.flag_spec:
             names = flag["names"]
             del flag["names"]
+            self.logger.info("Adding flag: %s" % str(flag))
             self.spec.add_flag(*names, **flag)
         for positional in self.positional_spec:
             name = positional["name"]
             del positional["name"]
+            self.logger.info("Adding positional: %s" % str(positional))
             self.spec.add_positional(name, **positional)
         for sub in self.subcommand_spec:
+            self.logger.info("Adding subcommand: %s" % str(sub))
             self.spec.add_subcommand(sub)
 
     def _get_arguments(self):
         if inspect.isclass(self._obj):
             arg_spec = inspect.getfullargspec(self._obj.__init__)
+            self.logger.info("Inspecting class [%s] argument specification: %s" % (self.name, str(arg_spec)))
             all_args = arg_spec.args.copy()
             if "self" in all_args:
                 all_args.remove("self")
@@ -152,6 +176,7 @@ class EasyCLI:
             self.subcommand_spec = self._parse_subcommands()
         elif isinstance(self._obj, types.FunctionType):
             arg_spec = inspect.getfullargspec(self._obj)
+            self.logger.info("Inspecting function [%s] argument specification: %s" % (self.name, str(arg_spec)))
             all_args = arg_spec.args.copy()
             if "self" in all_args:
                 all_args.remove("self")
@@ -167,17 +192,21 @@ class EasyCLI:
 
     def _parse_subcommands(self):
         methods = [m for m in self._obj.__dict__ if not m.startswith("_")]
+        self.logger.info("Parsing subcommands from list [%s] for [%s]" % (str(methods), self.name))
         subcommand_spec = []
         for method in methods:
             if hasattr(self._obj, method):
                 _m = getattr(self._obj, method)
+                self.logger.info("Inspecting method [%s] from [%s]" % (str(_m), self.name))
                 if ":easycli_ignore:" in _m.__doc__:
+                    self.logger.info("Docstring for method [%s] contains :easycli_ignore:, so ignoring" % str(_m))
                     continue
                 _e = EasyCLI(_m, execute=False)
                 method_path = "%s.%s" % (self._obj.__name__, _m.__name__)
                 self.sub_map[_e.name] = _e.sub_map
                 for alias in _e.spec.aliases:
                     self.sub_map[alias] = _e.sub_map
+                self.logger.info("Adding subcommand: [%s] aliases: (%s)" % (_e.name, ", ".join(_e.spec.aliases)))
                 subcommand_spec.append(_e.spec)
         return subcommand_spec
 
@@ -193,6 +222,7 @@ class EasyCLI:
     def _parse_positionals(self, positionals):
         positional_spec = []
         for positional in positionals:
+            self.logger.info("Adding positional argument [%s] for [%s]" % (positional, self.name))
             p = DEFAULT_POSITIONAL_SPEC.copy()
             help_matches = re.findall(rf":param {re.escape(positional)}: (.*)", self.desc)
             ty = self.anno.get(positional, str)
@@ -206,11 +236,13 @@ class EasyCLI:
             if ty not in (str, list, int):
                 p["type"] = str
             positional_spec.append(p)
+        self.logger.info("Positional spec: %s" % str(positional_spec))
         return positional_spec
 
     def _parse_flags(self, flags):
         flag_spec = []
         for flag, default in flags.items():
+            self.logger.info("Adding flag [%s] with default value [%s] to [%s]" % (flag, default, self.name))
             f = DEFAULT_FLAG_SPEC.copy()
             help_matches = re.findall(rf"\s+:param {re.escape(flag)}: (.*)", self.desc)
             ty = self.anno.get(flag, str)
@@ -236,6 +268,7 @@ class EasyCLI:
             if ty not in (str, list, int, bool):
                 f["type"] = str
             flag_spec.append(f)
+        self.logger.info("Flag spec: %s" % str(flag_spec))
         return flag_spec
 
 class CLIApp:

@@ -16,7 +16,10 @@ class Logging:
         self._debug = debug
         self._log_suffix = log_desc
         self._log_dir = Path(file_log_location)
-        self._log_filename = self._log_dir.joinpath("%s.log" % self.name)
+        path_name = self.name.replace("][", "/")
+        self._log_filename = self._log_dir.joinpath("%s.log" % path_name)
+        if file_log:
+            self._log_filename.parent.mkdir(exist_ok=True, parents=True)
         self._logger = logging.getLogger(self.name)
         if not self._logger.hasHandlers():
             self._logger.setLevel(logging.INFO)

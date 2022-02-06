@@ -55,9 +55,11 @@ class arg_tools:
     @staticmethod
     def build_full_cli(spec):
         arg_tools.parser = parser = argparse.ArgumentParser(description=spec.get("desc", ""))
-        cmd_subparsers = parser.add_subparsers(dest="subcommand", description="Available Subcommands")
         arg_tools.build_subparser_args(spec, parser)
-        arg_tools.process_subcommands(spec, cmd_subparsers)
+        subcommands = spec.get("subcommands", [])
+        if len(subcommands) > 0:
+            cmd_subparsers = parser.add_subparsers(dest="subcommand", description="Available Subcommands")
+            arg_tools.process_subcommands(spec, cmd_subparsers)
         return parser.parse_args()
 
     @staticmethod
