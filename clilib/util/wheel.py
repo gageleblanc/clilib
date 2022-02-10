@@ -41,8 +41,14 @@ class WheelUtils:
             compression = "gz"
         if archive_type is None:
             archive_type = "zip"
-        output_path = self.working_directory.joinpath("dist")
+        output_path = self.working_directory.joinpath("reqs")
+        if not output_path.exists():
+            output_path.mkdir(parents=True, exist_ok=True)
         self.build_wheel(python_executable)
+        files = os.listdir(str(self.working_directory.joinpath("dist")))
+        for file in files:
+            self.logger.info("Copying [%s] to output path ..." % file)
+            shutil.copy(str(self.working_directory.joinpath("dist").joinpath(file)), str(output_path.joinpath(file)))
         self.fetch_requirements(output=str(output_path), pip_executable=pip_executable)
         archive_path = self.working_directory.joinpath("%s_with_requirements" % self._setup.get_name())
         if archive_type == "zip":
@@ -65,8 +71,10 @@ class WheelUtils:
         if python_executable is None:
             python_executable = "python3"
         self.logger.info("Cleanup build environment ...")
-        shutil.rmtree("./build")
-        shutil.rmtree("./dist")
+        if self.working_directory.joinpath("build").exists():
+            shutil.rmtree(str(self.working_directory.joinpath("build")))
+        if self.working_directory.joinpath("dist").exists():
+            shutil.rmtree(str(self.working_directory.joinpath("dist")))
         self.logger.info("Building wheel from setup.py ...")
         command = [python_executable, "setup.py", "bdist_wheel"]
         self.logger.debug("Running command: [%s]" % " ".join(command))

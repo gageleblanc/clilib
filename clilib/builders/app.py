@@ -26,6 +26,16 @@ DEFAULT_POSITIONAL_SPEC = {
 class EasyCLI:
     args: argparse.Namespace
     def __init__(self, obj, execute: bool = True, enable_logging: bool = False, debug: bool = False, log_location: str = "/var/log", print_return: bool = False, dump_json: bool = True):
+        """
+        Build command line application out of given object
+        :param obj: Object to inspect and build application from
+        :param execute: Execute application after building. Default is true
+        :param enable_logging: Enable file-based logging for generation. This can be useful for development debugging.
+        :param debug: Enable additional debugging output.
+        :param log_location: Directory to create log file(s) if enabled. Default is /var/log
+        :param print_return: Print return value of method executed based on command line arguments. Default is false.
+        :param dump_json: Dump return statement to json if it is one of dict or list before printing. Default is true.
+        """
         self.logger = Logging("clilib", "EasyCLI", console_log=False, file_log=enable_logging, file_log_location=log_location, debug=debug).get_logger()
         self.print_return = print_return
         self.dump_json = dump_json
@@ -36,7 +46,7 @@ class EasyCLI:
         self.logger.info("EasyCLI analyzing given object: %s" % self.name)
         self.desc = obj.__doc__.strip()
         if inspect.isclass(obj):
-            self.desc += "\r\n%s" % obj.__init__.__doc__.strip()
+            self.desc += "\n%s" % obj.__init__.__doc__.strip()
         self.anno = {}
         if isinstance(obj, types.FunctionType):
             self.anno = obj.__annotations__
@@ -51,7 +61,7 @@ class EasyCLI:
             self.sub_map["_class"] = self._obj.__name__
         else:
             self.sub_map = self._obj.__name__
-        self.spec: SpecBuilder = SpecBuilder(self.name, self.desc.split("\n")[0])
+        self.spec: SpecBuilder = SpecBuilder(self.name, self._get_help_string())
         self.aliases = re.findall(r':alias (.*):', self.desc)
         if self.aliases is not None:
             for alias in self.aliases:
@@ -78,6 +88,15 @@ class EasyCLI:
                 self._resolve_subcommand_path("subcommand")
             else:
                 self._obj(**self._get_func_kwargs(self._obj))
+
+    def _get_help_string(self):
+        desc_lines = self.desc.split("\n")
+        final = []
+        for l in desc_lines:
+            l = l.strip()
+            if not l.startswith(":"):
+                final.append(l)
+        return " ".join(final)
 
     def _get_func_kwargs(self, obj):
         if inspect.isclass(obj):

@@ -47,6 +47,8 @@ class TestApp:
     """
     def __init__(self, debug: bool = False):
         """
+        Init description
+        :param debug: debug output
         """
         self.debug = debug
         self.logger = Logging("TestApp", "TopLevel", debug=debug).get_logger()
