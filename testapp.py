@@ -78,4 +78,4 @@ class TestApp:
 
 
 if __name__ == "__main__":
-    EasyCLI(TestApp, print_return=True)
+    EasyCLI(TestApp, print_return=True, enable_logging=True)

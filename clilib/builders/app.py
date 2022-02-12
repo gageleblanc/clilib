@@ -47,9 +47,9 @@ class EasyCLI:
             raise TypeError("EasyCLI requires class or method type, not %s" % str(type(obj)))
         self.name = obj.__name__.replace("_", "-").lower()
         self.logger.info("EasyCLI analyzing given object: %s" % self.name)
-        if not hasattr(obj, "__doc__"):
+        if obj.__doc__ is None:
             self.logger.fatal("%s: Missing documentation: raising AttributeError" % self.name)
-            raise AttributeError("EasyCLI requires that your code is documented so that it can generate help information and ensure argument types")
+            raise AttributeError("EasyCLI requires that your code is documented so that it can generate help information and ensure argument types. Documentation missing from: %s " % self.name)
         self.desc = obj.__doc__.strip()
         if self._isclass and not hasattr(obj, "__init__"):
             self.logger.fatal("Object is a class, but is missing init method, so exiting ...")
@@ -228,9 +228,10 @@ class EasyCLI:
             if hasattr(self._obj, method):
                 _m = getattr(self._obj, method)
                 self.logger.info("Inspecting method [%s] from [%s]" % (str(_m), self.name))
-                if ":easycli_ignore:" in _m.__doc__:
-                    self.logger.info("Docstring for method [%s] contains :easycli_ignore:, so ignoring" % str(_m))
-                    continue
+                if _m.__doc__ is not None:
+                    if ":easycli_ignore:" in _m.__doc__:
+                        self.logger.info("Docstring for method [%s] contains :easycli_ignore:, so ignoring" % str(_m))
+                        continue
                 _e = EasyCLI(_m, execute=False)
                 method_path = "%s.%s" % (self._obj.__name__, _m.__name__)
                 self.sub_map[_e.name] = _e.sub_map
