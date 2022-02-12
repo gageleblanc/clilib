@@ -40,24 +40,35 @@ class EasyCLI:
         self.print_return = print_return
         self.dump_json = dump_json
         self._obj = obj
+        self._isclass = inspect.isclass(obj)
+        self._isfunc = isinstance(obj, types.FunctionType)
+        self._ismethod = inspect.ismethod(obj)
         if not isinstance(obj, types.FunctionType) and not inspect.isclass(obj):
             raise TypeError("EasyCLI requires class or method type, not %s" % str(type(obj)))
         self.name = obj.__name__.replace("_", "-").lower()
         self.logger.info("EasyCLI analyzing given object: %s" % self.name)
+        if not hasattr(obj, "__doc__"):
+            self.logger.fatal("%s: Missing documentation: raising AttributeError" % self.name)
+            raise AttributeError("EasyCLI requires that your code is documented so that it can generate help information and ensure argument types")
         self.desc = obj.__doc__.strip()
-        if inspect.isclass(obj):
+        if self._isclass and not hasattr(obj, "__init__"):
+            self.logger.fatal("Object is a class, but is missing init method, so exiting ...")
+            raise AttributeError("Object is a class, but is missing init method, so exiting ...")
+        if self._isclass:
             self.desc += "\n%s" % obj.__init__.__doc__.strip()
         self.anno = {}
-        if isinstance(obj, types.FunctionType):
+        if self._isfunc:
+            self.logger.info("Object is function ...")
             self.anno = obj.__annotations__
-        elif inspect.isclass(obj):
+        elif self._isclass:
+            self.logger.info("Object is class ...")
             self.anno = obj.__init__.__annotations__
         self.flag_spec = []
         self.positional_spec = []
         self._shortnames = ["h"]
         self.subcommand_spec = []
         self.sub_map = {}
-        if inspect.isclass(self._obj):
+        if self._isclass:
             self.sub_map["_class"] = self._obj.__name__
         else:
             self.sub_map = self._obj.__name__
@@ -74,11 +85,11 @@ class EasyCLI:
     def execute_cli(self):
         self.logger.info("Executing generated CLI application for [%s]" % self.name)
         self.logger.info("Argparse spec: %s" % str(self.spec.build()))
-        if isinstance(self._obj, types.FunctionType):
+        if self._isfunc:
             self.args = arg_tools.build_simple_parser(self.spec.build())
             self.logger.info(self.args)
             self._obj(**vars(self.args))
-        elif inspect.isclass(self._obj):
+        elif self._isclass:
             self.args = arg_tools.build_full_cli(self.spec.build())
             self.logger.info(self.args)
             if len(self.subcommand_spec) > 0:
@@ -99,13 +110,13 @@ class EasyCLI:
         return " ".join(final)
 
     def _get_func_kwargs(self, obj):
-        if inspect.isclass(obj):
+        if self._isclass:
             self.logger.info("object [%s] is class" % self.name)
             arg_spec = inspect.getfullargspec(obj.__init__)
-        elif inspect.ismethod(obj):
+        elif self._ismethod:
             self.logger.info("object [%s] is method" % self.name)
             arg_spec = inspect.getfullargspec(obj)
-        elif isinstance(obj, types.FunctionType):
+        elif self._isfunc:
             self.logger.info("object [%s] is function" % self.name)
             arg_spec = inspect.getfullargspec(obj)
         else:
@@ -177,7 +188,7 @@ class EasyCLI:
             self.spec.add_subcommand(sub)
 
     def _get_arguments(self):
-        if inspect.isclass(self._obj):
+        if self._isclass:
             arg_spec = inspect.getfullargspec(self._obj.__init__)
             self.logger.info("Inspecting class [%s] argument specification: %s" % (self.name, str(arg_spec)))
             all_args = arg_spec.args.copy()
@@ -193,7 +204,7 @@ class EasyCLI:
                 positionals = all_args
             self.positional_spec = self._parse_positionals(positionals)
             self.subcommand_spec = self._parse_subcommands()
-        elif isinstance(self._obj, types.FunctionType):
+        elif self._isfunc:
             arg_spec = inspect.getfullargspec(self._obj)
             self.logger.info("Inspecting function [%s] argument specification: %s" % (self.name, str(arg_spec)))
             all_args = arg_spec.args.copy()
