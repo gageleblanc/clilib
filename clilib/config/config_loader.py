@@ -1,3 +1,4 @@
+from clilib.util.decorators import deprecated
 from clilib.util.dict import dict_path
 from clilib.util.util import SchemaValidator, Util
 from pathlib import Path
@@ -6,6 +7,7 @@ import json
 import yaml
 
 
+@deprecated("You should use JSONConfigurationFile or YAMLConfigurationFile")
 class ConfigLoader:
     def __init__(self, config, fmt="json", keys=None, auto_create=False, schema: dict = None, from_str: bool = False, from_obj: bool = False, schema_optional: bool = True):
         self.logger = Util.configure_logging(name=__name__)

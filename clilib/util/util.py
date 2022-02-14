@@ -1,6 +1,8 @@
 import logging
 import argparse
 import sys
+
+from clilib.util.decorators import deprecated
 from clilib.util.dict import dict_path
 from clilib.util.errors import SchemaException
 
@@ -16,6 +18,7 @@ class Util:
         print("Import success!")
 
     @staticmethod
+    @deprecated("configure_logging has been replaced with clilib.util.logging.Logging")
     def configure_logging(args=None, name=__name__, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', file_log: bool = False, log_path_prefix: str = "/var/log"):
         log_formatter = logging.Formatter(fmt=fmt)
         log = logging.getLogger(name)

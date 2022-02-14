@@ -4,11 +4,13 @@ from sys import platform
 from clilib.util.arg_tools import arg_tools
 import importlib
 
+from clilib.util.decorators import deprecated
 from clilib.util.util import Util
 
 
 class Loader:
     @staticmethod
+    @deprecated("This method is no longer used for loading command line modules.")
     def getActiveModules(path):
         if platform == "win32":
             with open(path) as f:
