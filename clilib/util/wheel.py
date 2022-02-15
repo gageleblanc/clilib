@@ -62,6 +62,7 @@ class WheelUtils:
                     self.logger.info("Adding file [%s] to archive" % file)
                     tar.add(str(output_path.joinpath(file)), arcname=file)
             self.logger.info("Archive created successfully.")
+        return str(archive_path)
 
     def build_wheel(self, python_executable: str = None):
         """
