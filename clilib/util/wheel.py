@@ -89,6 +89,7 @@ class WheelUtils:
         """
         if not hasattr(self._setup, "install_requires"):
             self.logger.fatal("Unable to fetch requirements. setup.py is missing install_requires.")
+            return
         if pip_executable is None:
             pip_executable = "pip3"
         if output is None:
