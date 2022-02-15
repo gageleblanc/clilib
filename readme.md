@@ -1,6 +1,9 @@
 # clilib
 ---
-clilib is a python library that does some automatic setup for cli applications. This is can be used to rapidly deploy cli applications in python.
+clilib is a python library that does some automatic setup for command-line applications as well as includes various 
+utilities that can be used in many applications. This can be used to rapidly deploy cli applications in python.
+
+[Full documentation](https://clilib.symnet.io)
 
 ### Quickstart
 
