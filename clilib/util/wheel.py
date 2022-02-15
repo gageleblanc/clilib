@@ -87,6 +87,8 @@ class WheelUtils:
         :param output: Directory to output downloaded requirements to. Default is ./reqs
         :param pip_executable: Path to pip executable. Default is pip3.
         """
+        if not hasattr(self._setup, "install_requires"):
+            self.logger.fatal("Unable to fetch requirements. setup.py is missing install_requires.")
         if pip_executable is None:
             pip_executable = "pip3"
         if output is None:
