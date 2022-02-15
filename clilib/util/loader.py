@@ -22,6 +22,7 @@ class Loader:
             return moduleSpec
 
     @staticmethod
+    @deprecated("You should use CLIApp or EasyCLI to build command-line applications now.")
     def start_app(modules, modules_base):
         logger = Util.configure_logging(name=__name__)
         args, _ = arg_tools.command_parser(modules)

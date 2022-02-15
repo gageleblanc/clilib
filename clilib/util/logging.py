@@ -1,11 +1,24 @@
 import json
 import logging
 from pathlib import Path
-from clilib.config.config_loader import ConfigLoader
 
 
 class Logging:
+    """
+    Set up and return a logging object based on given arguments
+    """
     def __init__(self, log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = "/var/log", file_log_mode: str = 'a+', app_name: str = None, debug: bool = False):
+        """
+        :param log_name: Name of log
+        :param log_desc: Optional description to include after log name
+        :param log_fmt: Optional format to specify for logging output.
+        :param console_log: Output logging to console. Default is True
+        :param file_log: Output logging to file. Default is False
+        :param file_log_location: Optional location of file log. Default is /var/log. This is only relevant if file_log is True
+        :param file_log_mode: Optional file mode to open logfile as. Default is a+. This is only relevant if file_log is True
+        :param app_name: Optional value used to determine logging configuration location. If left unset, it is generated based on log name and log description.
+        :param debug: Enable debugging. Default is false.
+        """
         self.name = log_name
         if log_desc is not None:
             self.name = "%s][%s" % (log_name, log_desc)
@@ -42,6 +55,10 @@ class Logging:
                 self._configure_file_handler()
 
     def get_logger(self):
+        """
+        Return logging object from configuration passed to init.
+        :return: Logger
+        """
         return self._logger
 
     def _get_logging_config(self):

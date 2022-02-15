@@ -1,6 +1,9 @@
 
 
 class SpecBuilder:
+    """
+    Generate specification that can be used with arg_tools for easy configuration of argparse
+    """
     def __init__(self, name: str, description: str):
         """
         Builds specification for subcommand programmatically, outputs dictionary valid for arg_tools

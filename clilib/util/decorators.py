@@ -4,12 +4,14 @@ import warnings
 
 string_types = (type(b''), type(u''))
 
-
+# Pulled from SO: https://stackoverflow.com/a/40301488/14578858
+# "... This decorator is now part of the Deprecated library"
+# See deprecated library license
 def deprecated(reason):
     """
-    This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
+    This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted
     when the function is used.
+    :param reason: Optional reason to give for deprecation
     """
 
     if isinstance(reason, string_types):

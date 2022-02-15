@@ -80,11 +80,25 @@ class Util:
 
 
 class SchemaValidator:
+    """
+    Validate dict objects against a given schema.
+    """
     def __init__(self, schema: dict, strict: bool = False):
+        """
+
+        :param schema: Schema to use for validate method
+        :param strict: Ensure all keys are present.
+        """
         self.schema = schema
         self.strict = strict
 
     def validate(self, subject: dict):
+        """
+        Validate given subject dict against the schema given during initialization. Will raise SchemaException for missing
+        keys, and TypeError for improper types.
+        :param subject: Subject to analyze against schema
+        :return: None
+        """
         for key, value_type in self.schema.items():
             if self.strict:
                 if key not in subject:

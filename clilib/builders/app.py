@@ -24,6 +24,12 @@ DEFAULT_POSITIONAL_SPEC = {
 }
 
 class EasyCLI:
+    """
+    Build command line application out of given object if object is a class or function. If the object is a function, the
+    arguments without defaults will be positionals and arguments with defaults will be flags. If the object is a class,
+    the base arguments are generated from the __init__ function, and any non-private methods are added as subcommands.
+    Subclasses are recursively parsed with EasyCLI again, repeating the process described above.
+    """
     args: argparse.Namespace
     def __init__(self, obj, execute: bool = True, enable_logging: bool = False, debug: bool = False, log_location: str = "/var/log", print_return: bool = False, dump_json: bool = True):
         """
@@ -83,6 +89,11 @@ class EasyCLI:
             self.execute_cli()
 
     def execute_cli(self):
+        """
+        Execute generated command-line application. You typically only need to run this if you initialized EazyCLI with
+        execute = False
+        :return:
+        """
         self.logger.info("Executing generated CLI application for [%s]" % self.name)
         self.logger.info("Argparse spec: %s" % str(self.spec.build()))
         if self._isfunc:
@@ -303,11 +314,15 @@ class EasyCLI:
         return flag_spec
 
 class CLIApp:
+    """
+    Manually build command-line application by passing a name for the subcommand and a path for the module to be executed
+    as the subcommand.
+    """
     def __init__(self, prefix_path: str = None, app_name: str = "CLIApp"):
         """
 
-        :param prefix_path:
-        :param app_name:
+        :param prefix_path: Prefix to prepend to subcommand paths
+        :param app_name: Name of CLI app, used for logging.
         """
         self.prefix_path = prefix_path
         self.prefix = False
@@ -326,6 +341,10 @@ class CLIApp:
         self.subcommands[name] = path
 
     def command_parser(self):
+        """
+        Parse command and return arguments
+        :return: Namespace object containing parsed arguments
+        """
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument("-h", "--help", action="help", help="show this help message and exit")
         parser.add_argument('command', choices=self.subcommands.keys(), nargs=argparse.REMAINDER)
@@ -337,6 +356,11 @@ class CLIApp:
             exit(1)
 
     def execute_command(self, args):
+        """
+        Execute the specified command based on the given arguments
+        :param args: Namespace object containing parsed arguments
+        :return: Bool
+        """
         if args.command[0] in self.subcommands:
             path = self.subcommands[args.command[0]]
             if self.prefix:
@@ -363,6 +387,10 @@ class CLIApp:
             return False
 
     def start_app(self):
+        """
+        Run generated command-line application.
+        :return: None
+        """
         # args, _ = arg_tools.command_parser(self.subcommands.keys())
         args = self.command_parser()
         self.logger.debug(args)
