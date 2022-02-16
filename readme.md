@@ -1,5 +1,10 @@
 # clilib
 ---
+![](https://img.shields.io/pypi/v/clilib) 
+![](https://img.shields.io/pypi/pyversions/clilib) 
+![](http://img.shields.io/pypi/l/clilib) 
+![](https://github.com/gageleblanc/clilib/actions/workflows/build-publish.yml/badge.svg?branch=master)
+
 clilib is a python library that does some automatic setup for command-line applications as well as includes various 
 utilities that can be used in many applications. This can be used to rapidly deploy cli applications in python.
 
