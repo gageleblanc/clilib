@@ -18,6 +18,10 @@ class SpecBuilder:
         self.subcommands = []
 
     def build(self):
+        """
+        Build and return final specification
+        :return: dict
+        """
         spec = {
             "name": self.name,
             "desc": self.description,
