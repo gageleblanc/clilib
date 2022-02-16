@@ -1,6 +1,8 @@
 import logging
 import argparse
 import sys
+
+from clilib.util.decorators import deprecated
 from clilib.util.dict import dict_path
 from clilib.util.errors import SchemaException
 
@@ -16,6 +18,7 @@ class Util:
         print("Import success!")
 
     @staticmethod
+    @deprecated("configure_logging has been replaced with clilib.util.logging.Logging")
     def configure_logging(args=None, name=__name__, fmt='[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', file_log: bool = False, log_path_prefix: str = "/var/log"):
         log_formatter = logging.Formatter(fmt=fmt)
         log = logging.getLogger(name)
@@ -77,11 +80,25 @@ class Util:
 
 
 class SchemaValidator:
+    """
+    Validate dict objects against a given schema.
+    """
     def __init__(self, schema: dict, strict: bool = False):
+        """
+
+        :param schema: Schema to use for validate method
+        :param strict: Ensure all keys are present.
+        """
         self.schema = schema
         self.strict = strict
 
     def validate(self, subject: dict):
+        """
+        Validate given subject dict against the schema given during initialization. Will raise SchemaException for missing
+        keys, and TypeError for improper types.
+        :param subject: Subject to analyze against schema
+        :return: None
+        """
         for key, value_type in self.schema.items():
             if self.strict:
                 if key not in subject:

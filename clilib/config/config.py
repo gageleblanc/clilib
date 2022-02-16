@@ -1,6 +1,8 @@
 import json
+from clilib.util.decorators import deprecated
 
 
+@deprecated("This should only be used by the legacy ConfigLoader. You should use JSONConfigurationFile or YAMLConfigurationFile.")
 class Config(dict):
     def __init__(self, d, path):
         self.__dict__ = d

@@ -137,3 +137,6 @@ tap/
 tap
 idea
 idea/
+reqs
+reqs/
+*.tar

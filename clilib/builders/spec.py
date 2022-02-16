@@ -1,6 +1,9 @@
 
 
 class SpecBuilder:
+    """
+    Generate specification that can be used with arg_tools for easy configuration of argparse
+    """
     def __init__(self, name: str, description: str):
         """
         Builds specification for subcommand programmatically, outputs dictionary valid for arg_tools
@@ -15,6 +18,10 @@ class SpecBuilder:
         self.subcommands = []
 
     def build(self):
+        """
+        Build and return final specification
+        :return: dict
+        """
         spec = {
             "name": self.name,
             "desc": self.description,
