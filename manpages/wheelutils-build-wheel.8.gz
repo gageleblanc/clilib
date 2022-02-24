@@ -1,0 +1,10 @@
+.TH BUILD-WHEEL 8
+.SH NAME
+build-wheel \- Build wheel from setup.py in working directory
+.SH SYNOPSIS
+build-wheel [-p | --python-executable] 
+.SH DESCRIPTION
+Build wheel from setup.py in working directory
+.SH OPTIONS
+-p, --python-executable - Python executable to use for building wheel. Default is python3
+

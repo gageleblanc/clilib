@@ -1,0 +1,12 @@
+.TH FETCH-REQUIREMENTS 8
+.SH NAME
+fetch-requirements \- Fetch install requirements to specified output directory.
+.SH SYNOPSIS
+fetch-requirements [-o | --output] [-p | --pip-executable] 
+.SH DESCRIPTION
+Fetch install requirements to specified output directory.
+.SH OPTIONS
+-o, --output - Directory to output downloaded requirements to. Default is ./reqs
+
+-p, --pip-executable - Path to pip executable. Default is pip3.
+

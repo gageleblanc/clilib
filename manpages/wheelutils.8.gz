@@ -1,0 +1,21 @@
+.TH WHEELUTILS 8
+.SH NAME
+wheelutils \- Various utilities for inspecting python projects
+.SH SYNOPSIS
+wheelutils [-d | --debug] [-w | --working-directory] 
+.SH DESCRIPTION
+Various utilities for inspecting python projects
+.SH OPTIONS
+-d, --debug - Add additional debugging output
+
+-w, --working-directory - Directory of project to inspect. Default is the same directory this script is run from.
+
+
+.SH SUBCOMMANDS
+build-archive - Build archive of current project and it's requirements, installable locally without internet.
+
+build-wheel - Build wheel from setup.py in working directory
+
+fetch-requirements - Fetch install requirements to specified output directory.
+
+show-requirements - Return install requirements as json
