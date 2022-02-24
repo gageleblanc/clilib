@@ -1,8 +1,0 @@
-.TH SHOW-REQUIREMENTS 8
-.SH NAME
-show-requirements \- Return install requirements as json
-.SH SYNOPSIS
-show-requirements 
-.SH DESCRIPTION
-Return install requirements as json
-.SH OPTIONS
