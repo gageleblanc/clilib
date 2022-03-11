@@ -338,17 +338,18 @@ class EasyCLI:
         return " ".join(final)
 
     def _get_func_kwargs(self, obj):
-        if self._isclass:
+        if inspect.isclass(obj):
             self.logger.info("object [%s] is class" % self.name)
             arg_spec = inspect.getfullargspec(obj.__init__)
-        elif self._ismethod:
+        elif inspect.ismethod(obj):
             self.logger.info("object [%s] is method" % self.name)
             arg_spec = inspect.getfullargspec(obj)
-        elif self._isfunc:
+        elif inspect.isfunction(obj):
             self.logger.info("object [%s] is function" % self.name)
             arg_spec = inspect.getfullargspec(obj)
         else:
             raise TypeError("Unable to gather arguments from non-class or non-function types, got (%s)" % str(type(obj)))
+        self.logger.info("Arg spec for [%s]: %s" % (obj.__name__, arg_spec))
         arg_spec.args.remove("self")
         arg_dict = {}
         for arg in arg_spec.args:
@@ -361,6 +362,7 @@ class EasyCLI:
         obj = self._obj
         sub_map = self.sub_map
         while inspect.isclass(obj):
+            self.logger.info("Object is [%s]" % obj.__name__)
             if subcommand_name not in self.args:
                 # replace alias
                 if isinstance(sub_map, dict):
