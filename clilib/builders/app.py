@@ -1,9 +1,13 @@
+import gzip
 import importlib
 import argparse
 import inspect
 import json
+import os
 import re
 import types
+from pathlib import Path
+from typing import Any
 
 from clilib.builders.spec import SpecBuilder
 from clilib.util.logging import Logging
@@ -22,6 +26,219 @@ DEFAULT_POSITIONAL_SPEC = {
     "help": "Default flag help, use docstring to configure",
     "type": str
 }
+
+
+def manpages(obj, section: int = 1, output_dir=None, compressed: bool = False):
+    """
+    Generate manpages for object based on generated EasyCLI application
+    :param obj: Object to generate manpages for
+    :param section: Destination man section for generated manpages
+    :param output_dir: Output directory for generated manpages
+    :param compressed: Generate gzipped manpages instead of plaintext.
+    :return:
+    """
+    print("Generating manpages in compressed mode ...")
+    e = EasyCLI(obj, execute=False)
+    d = EasyDoc(e.spec.build(), section)
+    d.build_pages()
+    if output_dir is None:
+        output_dir = Path(os.getcwd())
+    else:
+        output_dir = Path(output_dir)
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
+    for fn, text in d.manpages.items():
+        fn = "%s.%d.gz" % (fn, section)
+        dest = output_dir.joinpath(fn)
+        print("Writing manpage [%s] to [%s] ... " % (fn, dest))
+        if compressed:
+            with gzip.open(str(dest), 'w') as f:
+                f.write(text)
+        else:
+            with open(str(dest), 'w') as f:
+                f.write(text)
+    return d
+
+class HTMLObject:
+    def __init__(self, name: str, _id: str = None, singleton: bool = False):
+        self.name = name
+        self.html_attributes = {}
+        self.classes = []
+        self.id = _id
+        self.inner_content = None
+        self._singleton = singleton
+        self.logger = Logging("clilib", "HTMLObject").get_logger()
+
+    def _get_inner_content(self):
+        if self.inner_content is None:
+            self.inner_content = ""
+        if isinstance(self.inner_content, str):
+            return self.inner_content
+        elif isinstance(self.inner_content, list):
+            c = HTMLObject("ul")
+            for value in self.inner_content:
+                if isinstance(value, str):
+                    c.content(HTMLObject("li").content(value), append=True)
+            return c.build()
+        elif isinstance(self.inner_content, HTMLObject):
+            return self.inner_content.build()
+        else:
+            raise TypeError("HTMLObject content requires value type '%s' not '%s'" % (repr(str), repr(type(self.inner_content))))
+
+    def _build_class_string(self):
+        return " class=\"%s\" " % (" ".join(self.classes))
+
+    def _build_tag(self):
+        tag = "<%s" % self.name
+        if self.id is not None:
+            tag += " id=\"%s\" " % self.id
+        for attr, value in self.html_attributes.items():
+            tag += " %s=\"%s\" " % (attr, value)
+        tag += self._build_class_string()
+        if self._singleton:
+            tag += " />"
+        else:
+            tag += ">"
+            tag += self._get_inner_content()
+            tag += "</%s>" % self.name
+        return tag
+
+    def __str__(self):
+        return self._build_tag()
+
+    def build(self):
+        return self._build_tag()
+
+    def attr(self, name: str, value: str):
+        disallowed_attributes = ("class", "id")
+        if name in disallowed_attributes:
+            raise AttributeError("HTMLObject does not support changing the '%s' attribute with 'attr'. Please refer to the documentation for the proper way to change this attribute." % name)
+        if not isinstance(value, str):
+            raise TypeError("HTMLObject attribute requires value type '%s' not '%s'" % (repr(str), repr(type(value))))
+        self.html_attributes[name] = value
+        return self
+
+    def add_class(self, name: str):
+        if not re.match(r"-?[_a-zA-Z]+[_a-zA-Z0-9-]*", name):
+            raise ValueError("Class name must follow standard CSS/HTML class-name standards.")
+        if name not in self.classes:
+            self.classes.append(name)
+        return self
+
+    def remove_class(self, name: str):
+        self.classes.remove(name)
+        return self
+
+    def content(self, value: Any, append: bool = False):
+        if value is None:
+            value = ""
+        accepted_types = (str, list, HTMLObject)
+        if not isinstance(value, accepted_types):
+            raise TypeError("HTMLObject content requires one of %s not '%s'" % ("', '".join(repr(i) for i in accepted_types), repr(type(value))))
+        if append:
+            if isinstance(self.inner_content, str) and isinstance(value, HTMLObject) or isinstance(value, str):
+                value = str(value)
+                self.inner_content += value
+            elif isinstance(self.inner_content, list) and isinstance(value, list):
+                self.inner_content += value
+            elif isinstance(self.inner_content, list) and isinstance(value, str) or isinstance(value, HTMLObject):
+                self.inner_content.append(value)
+            else:
+                raise TypeError("Cannot append type '%s', must be one of %s" % (repr(type(value)), "', '".join(repr(i) for i in accepted_types)))
+        else:
+            self.inner_content = value
+        return self
+
+
+class EasyDoc:
+    """
+    Generate manual pages based on SpecBuilder specification
+    """
+    def __init__(self, spec: dict, section: int = 1):
+        """
+
+        :param spec: pre-built SpecBuilder specification
+        :param section: Destination manual section
+        """
+        self.spec = spec
+        self.section = section
+        self.manpages = {
+            spec["name"]: self.build_page(spec)
+        }
+
+    @staticmethod
+    def syn_str(spec):
+        """
+        Get synopsis string
+        :param spec: pre-built SpecBuilder specification
+        :return:
+        """
+        line = "%s " % spec["name"]
+        for flag in spec["flags"]:
+            line += "[%s] " % (" | ".join(flag["names"]))
+        for positional in spec["positionals"]:
+            if "nargs" in positional:
+                line += "<%s> [%s ...]" % (positional["name"].upper(), positional["name"].upper(), )
+            else:
+                line += "<%s>" % (positional["name"].upper())
+        return line
+
+    @staticmethod
+    def full_flags(spec):
+        """
+        Build flags string
+        :param spec: pre-built SpecBuilder specification
+        :return:
+        """
+        line = ""
+        for flag in spec["flags"]:
+            line += "%s - %s\n\n" % (", ".join(flag["names"]), flag["help"])
+        for positional in spec["positionals"]:
+            if "nargs" in positional:
+                line += "%s [%s ...] - %s\n\n" % (positional["name"].upper(), positional["name"].upper(), positional["help"])
+            else:
+                line += "%s - %s\n\n" % (positional["name"].upper(), positional["help"])
+        return line
+
+    def build_page(self, spec):
+        """
+        Build manpage from given specification and output in groff format.
+        :param spec: pre-built SpecBuilder specification
+        :return:
+        """
+        lines = []
+        lines.append(".TH %s %d" % (spec["name"].upper(), self.section))
+        lines.append(".SH NAME")
+        lines.append("%s \- %s" % (spec["name"], spec["desc"]))
+        lines.append(".SH SYNOPSIS")
+        lines.append(EasyDoc.syn_str(spec))
+        lines.append(".SH DESCRIPTION")
+        # lines.append(".B %s" % spec["name"])
+        lines.append(spec["desc"])
+        lines.append(".SH OPTIONS")
+        lines.append(EasyDoc.full_flags(spec))
+        subs = spec.get("subcommands", [])
+        if len(subs) > 0:
+            lines.append(".SH SUBCOMMANDS")
+            for sub in spec["subcommands"]:
+                lines.append("%s - %s\n" % (sub["name"], sub["desc"]))
+        return "\n".join(lines)
+
+    def build_pages(self, processor = None):
+        """
+        Recursively build all available manpages
+        :return:
+        """
+        if processor is None:
+            processor = self.build_page
+        for cmd in self.spec["subcommands"]:
+            f = "%s-%s" % (self.spec["name"], cmd["name"])
+            self.manpages[f] = processor(cmd)
+            if "subcommands" in cmd:
+                if len(cmd["subcommands"]) > 0:
+                    d = EasyDoc(cmd, section=self.section)
+                    self.manpages.update(d.manpages)
+
 
 class EasyCLI:
     """
@@ -121,17 +338,18 @@ class EasyCLI:
         return " ".join(final)
 
     def _get_func_kwargs(self, obj):
-        if self._isclass:
+        if inspect.isclass(obj):
             self.logger.info("object [%s] is class" % self.name)
             arg_spec = inspect.getfullargspec(obj.__init__)
-        elif self._ismethod:
+        elif inspect.ismethod(obj):
             self.logger.info("object [%s] is method" % self.name)
             arg_spec = inspect.getfullargspec(obj)
-        elif self._isfunc:
+        elif inspect.isfunction(obj):
             self.logger.info("object [%s] is function" % self.name)
             arg_spec = inspect.getfullargspec(obj)
         else:
             raise TypeError("Unable to gather arguments from non-class or non-function types, got (%s)" % str(type(obj)))
+        self.logger.info("Arg spec for [%s]: %s" % (obj.__name__, arg_spec))
         arg_spec.args.remove("self")
         arg_dict = {}
         for arg in arg_spec.args:
@@ -144,6 +362,7 @@ class EasyCLI:
         obj = self._obj
         sub_map = self.sub_map
         while inspect.isclass(obj):
+            self.logger.info("Object is [%s]" % obj.__name__)
             if subcommand_name not in self.args:
                 # replace alias
                 if isinstance(sub_map, dict):

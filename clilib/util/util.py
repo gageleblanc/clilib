@@ -115,7 +115,7 @@ class SchemaValidator:
         for key, value_type in schema.items():
             value = subject.get(key, None)
             if self.strict:
-                if value is None:
+                if key not in subject:
                     raise SchemaException("SchemaValidator: missing key %s" % key)
             if isinstance(value, dict):
                 self._validate_dict(value, "%s.%s" % (path, key))

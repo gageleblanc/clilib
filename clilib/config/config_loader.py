@@ -1,5 +1,5 @@
 from clilib.util.decorators import deprecated
-from clilib.util.dict import dict_path
+from clilib.util.dict import SearchableDict, dict_path
 from clilib.util.util import SchemaValidator, Util
 from pathlib import Path
 from clilib.config.config import Config
@@ -108,7 +108,7 @@ class JSONConfigurationFile:
         """
         self.__config_path = Path(config_path)
         self.__schema = schema
-        self.__config_data = {}
+        self.__config_data = SearchableDict()
         self.__schema_strict = schema_strict
         self.__validator = None
         self.__auto_create = auto_create
@@ -118,14 +118,14 @@ class JSONConfigurationFile:
         self._load_file()
 
     def __call__(self, path: str):
-        return dict_path(self.__config_data, path)
+        return self.__config_data.get_path(path)
 
     def __getitem__(self, item):
-        return self.__config_data[item]
+        return self.__config_data.get_path(item)
 
     def __setitem__(self, item, value):
-        config_data = self.__config_data.copy()
-        config_data[item] = value
+        config_data = SearchableDict(self.__config_data.copy())
+        config_data.set_path(item, value)
         if self.__validator is not None:
             self.__validator.validate(config_data)
         self.__config_data = config_data
@@ -138,19 +138,19 @@ class JSONConfigurationFile:
                 config_data = json.load(f)
                 if self.__validator is not None:
                     self.__validator.validate(config_data)
-                self.__config_data = config_data
+                self.__config_data = SearchableDict(config_data)
         except FileNotFoundError as e:
             if self.__auto_create is not None:
                 config_data = self.__auto_create.copy()
                 if self.__validator is not None:
                     self.__validator.validate(config_data)
-                self.__config_data = config_data
+                self.__config_data = SearchableDict(config_data)
                 self.write()
             else:
                 raise e
 
     def write(self):
-        with open(self.__config_path, 'wb') as f:
+        with open(self.__config_path, 'w') as f:
             json.dump(self.__config_data, f)
 
 
@@ -171,7 +171,7 @@ class YAMLConfigurationFile:
         """
         self.__config_path = Path(config_path)
         self.__schema = schema
-        self.__config_data = {}
+        self.__config_data = SearchableDict()
         self.__schema_strict = schema_strict
         self.__validator = None
         self.__auto_create = auto_create
@@ -181,14 +181,14 @@ class YAMLConfigurationFile:
         self._load_file()
 
     def __call__(self, path: str):
-        return dict_path(self.__config_data, path)
+        return self.__config_data.get_path(path)
 
     def __getitem__(self, item):
-        return self.__config_data[item]
+        return self.__config_data.get_path(item)
 
     def __setitem__(self, item, value):
-        config_data = self.__config_data.copy()
-        config_data[item] = value
+        config_data = SearchableDict(self.__config_data.copy())
+        config_data.set_path(item, value)
         if self.__validator is not None:
             self.__validator.validate(config_data)
         self.__config_data = config_data
@@ -201,13 +201,13 @@ class YAMLConfigurationFile:
                 config_data = yaml.safe_load(f)
                 if self.__validator is not None:
                     self.__validator.validate(config_data)
-                self.__config_data = config_data
+                self.__config_data = SearchableDict(config_data)
         except FileNotFoundError as e:
             if self.__auto_create is not None:
                 config_data = self.__auto_create.copy()
                 if self.__validator is not None:
                     self.__validator.validate(config_data)
-                self.__config_data = config_data
+                self.__config_data = SearchableDict(config_data)
                 self.write()
             else:
                 raise e
