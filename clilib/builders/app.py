@@ -8,7 +8,7 @@ import re
 import types
 from pathlib import Path
 from typing import Any
-
+from sys import exit
 from clilib.builders.spec import SpecBuilder
 from clilib.util.logging import Logging
 from clilib.util.arg_tools import arg_tools

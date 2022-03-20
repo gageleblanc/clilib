@@ -145,6 +145,7 @@ class JSONConfigurationFile:
                 if self.__validator is not None:
                     self.__validator.validate(config_data)
                 self.__config_data = SearchableDict(config_data)
+                self.__config_path.parent.mkdir(parents=True, exist_ok=True)
                 self.write()
             else:
                 raise e
@@ -208,6 +209,7 @@ class YAMLConfigurationFile:
                 if self.__validator is not None:
                     self.__validator.validate(config_data)
                 self.__config_data = SearchableDict(config_data)
+                self.__config_path.parent.mkdir(parents=True, exist_ok=True)
                 self.write()
             else:
                 raise e
