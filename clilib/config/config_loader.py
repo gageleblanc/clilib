@@ -215,5 +215,5 @@ class YAMLConfigurationFile:
                 raise e
 
     def write(self):
-        with open(self.__config_path, 'wb') as f:
-            f.write(yaml.dump(self.__config_data, Dumper=YAMLConfigurationFile.NoAliasDumper))
+        with open(self.__config_path, 'w') as f:
+            f.write(yaml.dump(dict(self.__config_data), Dumper=YAMLConfigurationFile.NoAliasDumper))
