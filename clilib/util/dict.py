@@ -76,7 +76,7 @@ class SearchableDict(dict):
         for key in path_parts:
             if not key:
                 continue
-            li = re.findall(r'[(\d+)]', key)
+            li = re.findall(r'\[(\d+)\]', key)
             if len(li) > 0:
                 k = key.split("[")[0]
                 if not isinstance(d.get(k), list):
