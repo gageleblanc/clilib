@@ -120,6 +120,9 @@ class JSONConfigurationFile:
     def __call__(self, path: str):
         return self.__config_data.get_path(path)
 
+    def __contains__(self, item):
+        return item in self.__config_data
+
     def __getitem__(self, item):
         return self.__config_data.get_path(item)
 
@@ -183,6 +186,9 @@ class YAMLConfigurationFile:
 
     def __call__(self, path: str):
         return self.__config_data.get_path(path)
+
+    def __contains__(self, item):
+        return item in self.__config_data
 
     def __getitem__(self, item):
         return self.__config_data.get_path(item)
