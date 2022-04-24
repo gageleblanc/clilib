@@ -7,7 +7,7 @@ class Logging:
     """
     Set up and return a logging object based on given arguments
     """
-    def __init__(self, log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = "/var/log", file_log_mode: str = 'a+', app_name: str = None, debug: bool = False):
+    def __init__(self, log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = "/var/log", file_log_mode: str = 'a+', app_name: str = None, debug: bool = False, logging_level: str = None):
         """
         :param log_name: Name of log
         :param log_desc: Optional description to include after log name
@@ -20,6 +20,14 @@ class Logging:
         :param debug: Enable debugging. Default is false.
         """
         self.name = log_name
+        self.logging_level = logging_level
+        if self.logging_level is not None:
+            if isinstance(self.logging_level, str):
+                self.logging_level = self.logging_level.upper()
+            else:
+                # Should probably just gracefully handle this instead of throwing exception
+                # raise TypeError("logging_level must be a string")
+                self.logging_level = None
         if log_desc is not None:
             self.name = "%s][%s" % (log_name, log_desc)
         if app_name is not None:
@@ -83,9 +91,64 @@ class Logging:
         if self._debug:
             self._logger.setLevel(logging.DEBUG)
             console_handler.setLevel(logging.DEBUG)
+        if self.logging_level:
+            self._logger.setLevel(getattr(logging, self.logging_level))
+            console_handler.setLevel(getattr(logging, self.logging_level))
         self._logger.addHandler(console_handler)
 
     def _configure_file_handler(self):
         file_handler = logging.FileHandler(self._log_filename, self._log_file_mode)
         file_handler.setFormatter(self._log_formatter)
         self._logger.addHandler(file_handler)
+
+    # needs to be staticmethod so that its used before logging is initialized 
+    @staticmethod
+    def add_logging_level(levelName, levelNum = (logging.DEBUG - 1), methodName = None):
+        """
+        https://stackoverflow.com/a/35804945/14578858
+        Comprehensively adds a new logging level to the `logging` module and the
+        currently configured logging class.
+
+        `levelName` becomes an attribute of the `logging` module with the value
+        `levelNum`. `methodName` becomes a convenience method for both `logging`
+        itself and the class returned by `logging.getLoggerClass()` (usually just
+        `logging.Logger`). If `methodName` is not specified, `levelName.lower()` is
+        used.
+
+        To avoid accidental clobberings of existing attributes, this method will
+        raise an `AttributeError` if the level name is already an attribute of the
+        `logging` module or if the method name is already present 
+
+        Example
+        -------
+        >>> addLoggingLevel('TRACE', logging.DEBUG - 5)
+        >>> logging.getLogger(__name__).setLevel("TRACE")
+        >>> logging.getLogger(__name__).trace('that worked')
+        >>> logging.trace('so did this')
+        >>> logging.TRACE
+        5
+
+        """
+        if not methodName:
+            methodName = levelName.lower()
+
+        if hasattr(logging, levelName):
+            raise AttributeError('{} already defined in logging module'.format(levelName))
+        if hasattr(logging, methodName):
+            raise AttributeError('{} already defined in logging module'.format(methodName))
+        if hasattr(logging.getLoggerClass(), methodName):
+            raise AttributeError('{} already defined in logger class'.format(methodName))
+
+        # This method was inspired by the answers to Stack Overflow post
+        # http://stackoverflow.com/q/2183233/2988730, especially
+        # http://stackoverflow.com/a/13638084/2988730
+        def logForLevel(self, message, *args, **kwargs):
+            if self.isEnabledFor(levelNum):
+                self._log(levelNum, message, args, **kwargs)
+        def logToRoot(message, *args, **kwargs):
+            logging.log(levelNum, message, *args, **kwargs)
+
+        logging.addLevelName(levelNum, levelName)
+        setattr(logging, levelName, levelNum)
+        setattr(logging.getLoggerClass(), methodName, logForLevel)
+        setattr(logging, methodName, logToRoot)
