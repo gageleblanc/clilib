@@ -144,7 +144,7 @@ class INIConfigurationFile:
         for line in data_lines:
             if re.match(r"^;.*|^#.*", line):
                 continue
-            elif re.match("\[.*\]", line):
+            elif re.match(r"^\[([a-zA-Z0-9\._]*)\]", line):
                 section_name = re.findall(r"^\[([a-zA-Z0-9\._]*)\]", line)
                 if len(section_name) > 0:
                     new_current_section = section_name[0]
