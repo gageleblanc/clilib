@@ -362,7 +362,7 @@ class EasyCLI:
         obj = self._obj
         sub_map = self.sub_map
         while inspect.isclass(obj):
-            self.logger.info("Object is [%s]" % obj.__name__)
+            self.logger.info("Object is [%s] Subcommand Name is [%s]" % (obj.__name__, subcommand_name))
             if subcommand_name not in self.args:
                 # replace alias
                 if isinstance(sub_map, dict):
