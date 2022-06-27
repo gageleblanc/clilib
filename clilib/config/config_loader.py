@@ -173,7 +173,7 @@ class JSONConfigurationFile(ConfigurationFile):
     """
     def _load_file(self):
         try:
-            with open(self._config_path, 'rb') as f:
+            with open(self.path, 'rb') as f:
                 config_data = json.load(f)
                 if self._validator is not None:
                     self._validator.validate(config_data)
@@ -190,7 +190,7 @@ class JSONConfigurationFile(ConfigurationFile):
                 raise e
 
     def write(self):
-        with open(self._config_path, 'w') as f:
+        with open(self.path, 'w') as f:
             json.dump(self._config_data, f)
 
 
