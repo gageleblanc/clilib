@@ -97,45 +97,74 @@ class ConfigLoader:
         return Config(self.config, self.config_file)
 
 
-class INIConfigurationFile:
+class ConfigurationFile:
+    """
+    Configuration File base class
+    """
     def __init__(self, config_path: str, schema: dict = None, schema_strict: bool = False, auto_create: dict = None, write_on_set: bool = False):
         """
-        Load INI configuration file from disk, use auto_create if not None and file does not exist. Note that writing configuration files with this
-        class will not retain comments.
+        Load a configuration file from a path.
         :param config_path: Path to configuration file
         :param schema: Validation schema for validating loaded config. This is optional
         :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
         :param auto_create: Dictionary of defaults for auto creation, or None
         :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
         """
-        self.__config_path = Path(config_path)
-        self.__schema = schema
-        self.__config_data = SearchableDict()
-        self.__schema_strict = schema_strict
-        self.__validator = None
-        self.__auto_create = auto_create
-        self.__write_on_set = write_on_set
-        if self.__schema is not None:
-            self.__validator = SchemaValidator(self.__schema, schema_strict)
+        self.path = Path(config_path)
+        self._config_data = SearchableDict()
+        self._schema = schema
+        self._schema_strict = schema_strict
+        self._validator = None
+        self._auto_create = auto_create
+        self._write_on_set = write_on_set
+        if self._schema is not None:
+            self._validator = SchemaValidator(self._schema, self._schema_strict)
         self._load_file()
 
+    def _load_config(self):
+        raise NotImplementedError("You must implement this method")
+
     def __call__(self, path: str):
-        return self.__config_data.get_path(path)
+        return self._config_data.get_path(path)
 
     def __contains__(self, item):
-        return item in self.__config_data
+        return item in self._config_data
 
     def __getitem__(self, item):
-        return self.__config_data.get_path(item)
+        return self._config_data.get_path(item)
 
     def __setitem__(self, item, value):
-        config_data = SearchableDict(self.__config_data.copy())
+        config_data = SearchableDict(self._config_data.copy())
         config_data.set_path(item, value)
-        if self.__validator is not None:
-            self.__validator.validate(config_data)
-        self.__config_data = config_data
-        if self.__write_on_set:
+        if self._validator is not None:
+            self._validator.validate(config_data)
+        self._config_data = config_data
+        if self._write_on_set:
             self.write()
+    
+    def __delitem__(self, key):
+        if key in self._config_data:
+            del self._config_data[key]
+            if self._write_on_set:
+                self.write()
+
+    def reload(self):
+        self._load_config()
+
+    def write(self):
+        raise NotImplementedError("You must implement this method")
+
+
+class INIConfigurationFile(ConfigurationFile):
+    """
+    Load INI configuration file from disk, use auto_create if not None and file does not exist. Note that writing configuration files with this
+    class will not retain comments.
+    :param config_path: Path to configuration file
+    :param schema: Validation schema for validating loaded config. This is optional
+    :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
+    :param auto_create: Dictionary of defaults for auto creation, or None
+    :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
+    """
 
     def _parse_file(self, file_data):
         data_lines = file_data.splitlines()
@@ -170,7 +199,7 @@ class INIConfigurationFile:
 
     def _load_file(self):
         try:
-            with open(self.__config_path, 'rb') as f:
+            with open(self.path, 'rb') as f:
                 config_data = f.read().decode()
                 config_data = self._parse_file(config_data)
                 if self.__validator is not None:
@@ -217,135 +246,74 @@ class INIConfigurationFile:
         return final
 
     def write(self):
-        with open(self.__config_path, 'w') as f:
+        with open(self.path, 'w') as f:
             final_data = self.dump()
             f.write(final_data)
 
 
-class JSONConfigurationFile:
-    def __init__(self, config_path: str, schema: dict = None, schema_strict: bool = False, auto_create: dict = None, write_on_set: bool = False):
-        """
-        Load JSON configuration file from disk, use auto_create if not None and file does not exist.
-        :param config_path: Path to configuration file
-        :param schema: Validation schema for validating loaded config. This is optional
-        :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
-        :param auto_create: Dictionary of defaults for auto creation, or None
-        :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
-        """
-        self.__config_path = Path(config_path)
-        self.__schema = schema
-        self.__config_data = SearchableDict()
-        self.__schema_strict = schema_strict
-        self.__validator = None
-        self.__auto_create = auto_create
-        self.__write_on_set = write_on_set
-        if self.__schema is not None:
-            self.__validator = SchemaValidator(self.__schema, schema_strict)
-        self._load_file()
-
-    def __call__(self, path: str):
-        return self.__config_data.get_path(path)
-
-    def __contains__(self, item):
-        return item in self.__config_data
-
-    def __getitem__(self, item):
-        return self.__config_data.get_path(item)
-
-    def __setitem__(self, item, value):
-        config_data = SearchableDict(self.__config_data.copy())
-        config_data.set_path(item, value)
-        if self.__validator is not None:
-            self.__validator.validate(config_data)
-        self.__config_data = config_data
-        if self.__write_on_set:
-            self.write()
-
+class JSONConfigurationFile(ConfigurationFile):
+    """
+    Load JSON configuration file from disk, use auto_create if not None and file does not exist.
+    :param config_path: Path to configuration file
+    :param schema: Validation schema for validating loaded config. This is optional
+    :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
+    :param auto_create: Dictionary of defaults for auto creation, or None
+    :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
+    """
     def _load_file(self):
         try:
-            with open(self.__config_path, 'rb') as f:
+            with open(self._config_path, 'rb') as f:
                 config_data = json.load(f)
-                if self.__validator is not None:
-                    self.__validator.validate(config_data)
-                self.__config_data = SearchableDict(config_data)
+                if self._validator is not None:
+                    self._validator.validate(config_data)
+                self._config_data = SearchableDict(config_data)
         except FileNotFoundError as e:
             if self.__auto_create is not None:
                 config_data = self.__auto_create.copy()
-                if self.__validator is not None:
-                    self.__validator.validate(config_data)
-                self.__config_data = SearchableDict(config_data)
-                self.__config_path.parent.mkdir(parents=True, exist_ok=True)
+                if self._validator is not None:
+                    self._validator.validate(config_data)
+                self._config_data = SearchableDict(config_data)
+                self._config_path.parent.mkdir(parents=True, exist_ok=True)
                 self.write()
             else:
                 raise e
 
     def write(self):
-        with open(self.__config_path, 'w') as f:
-            json.dump(self.__config_data, f)
+        with open(self._config_path, 'w') as f:
+            json.dump(self._config_data, f)
 
 
-class YAMLConfigurationFile:
-
+class YAMLConfigurationFile(ConfigurationFile):
+    """
+    Load YAML configuration file from disk, use auto_create if not None and file does not exist.
+    :param config_path: Path to configuration file
+    :param schema: Validation schema for validating loaded config. This is optional
+    :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
+    :param auto_create: Dictionary of defaults for auto creation, or None
+    :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
+    """
     class NoAliasDumper(yaml.SafeDumper):
         def ignore_aliases(self, data):
             return True
 
-    def __init__(self, config_path: str, schema: dict = None, schema_strict: bool = False, auto_create: dict = None, write_on_set: bool = False):
-        """
-        Load YAML configuration file from disk, use auto_create if not None and file does not exist.
-        :param config_path: Path to configuration file
-        :param schema: Validation schema for validating loaded config. This is optional
-        :param schema_strict: Schema validation is strict, failing if keys are missing from loaded config
-        :param auto_create: Dictionary of defaults for auto creation, or None
-        :param write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.
-        """
-        self.__config_path = Path(config_path)
-        self.__schema = schema
-        self.__config_data = SearchableDict()
-        self.__schema_strict = schema_strict
-        self.__validator = None
-        self.__auto_create = auto_create
-        self.__write_on_set = write_on_set
-        if self.__schema is not None:
-            self.__validator = SchemaValidator(self.__schema, schema_strict)
-        self._load_file()
-
-    def __call__(self, path: str):
-        return self.__config_data.get_path(path)
-
-    def __contains__(self, item):
-        return item in self.__config_data
-
-    def __getitem__(self, item):
-        return self.__config_data.get_path(item)
-
-    def __setitem__(self, item, value):
-        config_data = SearchableDict(self.__config_data.copy())
-        config_data.set_path(item, value)
-        if self.__validator is not None:
-            self.__validator.validate(config_data)
-        self.__config_data = config_data
-        if self.__write_on_set:
-            self.write()
-
     def _load_file(self):
         try:
-            with open(self.__config_path, 'rb') as f:
+            with open(self.path, 'rb') as f:
                 config_data = yaml.safe_load(f)
-                if self.__validator is not None:
-                    self.__validator.validate(config_data)
-                self.__config_data = SearchableDict(config_data)
+                if self._validator is not None:
+                    self._validator.validate(config_data)
+                self._config_data = SearchableDict(config_data)
         except FileNotFoundError as e:
-            if self.__auto_create is not None:
-                config_data = self.__auto_create.copy()
-                if self.__validator is not None:
-                    self.__validator.validate(config_data)
-                self.__config_data = SearchableDict(config_data)
-                self.__config_path.parent.mkdir(parents=True, exist_ok=True)
+            if self._auto_create is not None:
+                config_data = self._auto_create.copy()
+                if self._validator is not None:
+                    self._validator.validate(config_data)
+                self._config_data = SearchableDict(config_data)
+                self._config_path.parent.mkdir(parents=True, exist_ok=True)
                 self.write()
             else:
                 raise e
 
     def write(self):
-        with open(self.__config_path, 'w') as f:
-            f.write(yaml.dump(dict(self.__config_data), Dumper=YAMLConfigurationFile.NoAliasDumper))
+        with open(self.path, 'w') as f:
+            f.write(yaml.dump(dict(self._config_data), Dumper=YAMLConfigurationFile.NoAliasDumper))
