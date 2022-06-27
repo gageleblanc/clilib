@@ -4,7 +4,13 @@ import threading
 
 class EventManager:
     """
-    Store and manage events and handlers
+    Store and manage events and handlers. Call your event handler object to trigger an event.
+    Example:
+    ```
+    event_manager = EventManager()
+    event_manager.on("my_event", my_event_handler)
+    event_manager("my_event", {"my_data": "my_value"})
+    ```
     """
     def __init__(self, debug: bool = False):
         self.logger = Logging(log_name="clilib", log_desc="EventManager", debug=debug).get_logger()
@@ -32,7 +38,8 @@ class EventManager:
 
     def on(self, event_name: str, handler):
         """
-        Add an event handler
+        Add an event handler.
+        
         Alias for add
         :param event_name: Event name
         :param handler: Event handler

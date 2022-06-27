@@ -5,5 +5,5 @@ if [ -d "./html" ]; then
 fi
 
 pdoc3 clilib -c show_source_code=False --html -o html
-docker build -t gleblanc/clilib-docs:latest .
+docker build --no-cache -t gleblanc/clilib-docs:latest .
 docker push gleblanc/clilib-docs:latest

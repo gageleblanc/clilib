@@ -3,4 +3,4 @@ clilib is a python library for speeding up development of command-line applicati
 the tools included in clilib can be used in any application. Logging and Configuration loading in particular are
 not limited to command line applications.
 """
-__version__ = "3.6.3"
+__version__ = "3.7.0"

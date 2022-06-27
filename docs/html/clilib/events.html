@@ -37,7 +37,12 @@
 <span>(</span><span>debug: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Store and manage events and handlers</p></div>
+<div class="desc"><p>Store and manage events and handlers. Call your event handler object to trigger an event.
+Example:</p>
+<pre><code>event_manager = EventManager()
+event_manager.on(&quot;my_event&quot;, my_event_handler)
+event_manager(&quot;my_event&quot;, {&quot;my_data&quot;: &quot;my_value&quot;})
+</code></pre></div>
 <h3>Methods</h3>
 <dl>
 <dt id="clilib.events.EventManager.add"><code class="name flex">
@@ -58,8 +63,8 @@
 <span>def <span class="ident">on</span></span>(<span>self, event_name: str, handler)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add an event handler
-Alias for add</p>
+<div class="desc"><p>Add an event handler.</p>
+<p>Alias for add</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>event_name</code></strong></dt>
