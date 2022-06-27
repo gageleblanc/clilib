@@ -113,16 +113,16 @@ class INIConfigurationFile(ConfigurationFile):
             with open(self.path, 'rb') as f:
                 config_data = f.read().decode()
                 config_data = self._parse_file(config_data)
-                if self.__validator is not None:
-                    self.__validator.validate(config_data)
-                self.__config_data = SearchableDict(config_data)
+                if self._validator is not None:
+                    self._validator.validate(config_data)
+                self._config_data = SearchableDict(config_data)
         except FileNotFoundError as e:
-            if self.__auto_create is not None:
-                config_data = self.__auto_create.copy()
-                if self.__validator is not None:
-                    self.__validator.validate(config_data)
-                self.__config_data = SearchableDict(config_data)
-                self.__config_path.parent.mkdir(parents=True, exist_ok=True)
+            if self._auto_create is not None:
+                config_data = self._auto_create.copy()
+                if self._validator is not None:
+                    self._validator.validate(config_data)
+                self._config_data = SearchableDict(config_data)
+                self._config_path.parent.mkdir(parents=True, exist_ok=True)
                 self.write()
             else:
                 raise e
@@ -144,7 +144,7 @@ class INIConfigurationFile(ConfigurationFile):
         Dump configuration to file
         """
         final = ""
-        for k, v in self.__config_data.items():
+        for k, v in self._config_data.items():
             if isinstance(v, dict):
                 final += "[%s]\n" % k
                 final += self._dump_dict(v)
