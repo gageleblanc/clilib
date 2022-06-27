@@ -34,7 +34,7 @@
 <dl>
 <dt id="clilib.util.logging.Logging"><code class="flex name class">
 <span>class <span class="ident">Logging</span></span>
-<span>(</span><span>log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = '/var/log', file_log_mode: str = 'a+', app_name: str = None, debug: bool = False)</span>
+<span>(</span><span>log_name: str, log_desc: str = None, log_fmt: str = '[%(asctime)s][%(name)s][%(levelname)8s] - %(message)s', console_log: bool = True, file_log: bool = False, file_log_location: str = '/var/log', file_log_mode: str = 'a+', app_name: str = None, debug: bool = False, logging_level: str = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set up and return a logging object based on given arguments</p>
@@ -59,6 +59,33 @@
 <dt><strong><code>debug</code></strong></dt>
 <dd>Enable debugging. Default is false.</dd>
 </dl></div>
+<h3>Static methods</h3>
+<dl>
+<dt id="clilib.util.logging.Logging.add_logging_level"><code class="name flex">
+<span>def <span class="ident">add_logging_level</span></span>(<span>levelName, levelNum=9, methodName=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p><a href="https://stackoverflow.com/a/35804945/14578858">https://stackoverflow.com/a/35804945/14578858</a>
+Comprehensively adds a new logging level to the <code>logging</code> module and the
+currently configured logging class.</p>
+<p><code>levelName</code> becomes an attribute of the <code>logging</code> module with the value
+<code>levelNum</code>. <code>methodName</code> becomes a convenience method for both <code>logging</code>
+itself and the class returned by <code>logging.getLoggerClass()</code> (usually just
+<code>logging.Logger</code>). If <code>methodName</code> is not specified, <code>levelName.lower()</code> is
+used.</p>
+<p>To avoid accidental clobberings of existing attributes, this method will
+raise an <code>AttributeError</code> if the level name is already an attribute of the
+<code>logging</code> module or if the method name is already present </p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; addLoggingLevel('TRACE', logging.DEBUG - 5)
+&gt;&gt;&gt; logging.getLogger(__name__).setLevel(&quot;TRACE&quot;)
+&gt;&gt;&gt; logging.getLogger(__name__).trace('that worked')
+&gt;&gt;&gt; logging.trace('so did this')
+&gt;&gt;&gt; logging.TRACE
+5
+</code></pre></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="clilib.util.logging.Logging.get_logger"><code class="name flex">
@@ -89,6 +116,7 @@
 <li>
 <h4><code><a title="clilib.util.logging.Logging" href="#clilib.util.logging.Logging">Logging</a></code></h4>
 <ul class="">
+<li><code><a title="clilib.util.logging.Logging.add_logging_level" href="#clilib.util.logging.Logging.add_logging_level">add_logging_level</a></code></li>
 <li><code><a title="clilib.util.logging.Logging.get_logger" href="#clilib.util.logging.Logging.get_logger">get_logger</a></code></li>
 </ul>
 </li>

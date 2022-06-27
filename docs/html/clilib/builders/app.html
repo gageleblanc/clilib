@@ -28,6 +28,27 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="clilib.builders.app.manpages"><code class="name flex">
+<span>def <span class="ident">manpages</span></span>(<span>obj, section: int = 1, output_dir=None, compressed: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate manpages for object based on generated EasyCLI application</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Object to generate manpages for</dd>
+<dt><strong><code>section</code></strong></dt>
+<dd>Destination man section for generated manpages</dd>
+<dt><strong><code>output_dir</code></strong></dt>
+<dd>Output directory for generated manpages</dd>
+<dt><strong><code>compressed</code></strong></dt>
+<dd>Generate gzipped manpages instead of plaintext.</dd>
+</dl>
+<p>Returns:</p></div>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -136,6 +157,109 @@ execute = False</p>
 </dd>
 </dl>
 </dd>
+<dt id="clilib.builders.app.EasyDoc"><code class="flex name class">
+<span>class <span class="ident">EasyDoc</span></span>
+<span>(</span><span>spec: dict, section: int = 1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate manual pages based on SpecBuilder specification</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>spec</code></strong></dt>
+<dd>pre-built SpecBuilder specification</dd>
+<dt><strong><code>section</code></strong></dt>
+<dd>Destination manual section</dd>
+</dl></div>
+<h3>Static methods</h3>
+<dl>
+<dt id="clilib.builders.app.EasyDoc.full_flags"><code class="name flex">
+<span>def <span class="ident">full_flags</span></span>(<span>spec)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Build flags string</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>spec</code></strong></dt>
+<dd>pre-built SpecBuilder specification</dd>
+</dl>
+<p>Returns:</p></div>
+</dd>
+<dt id="clilib.builders.app.EasyDoc.syn_str"><code class="name flex">
+<span>def <span class="ident">syn_str</span></span>(<span>spec)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get synopsis string</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>spec</code></strong></dt>
+<dd>pre-built SpecBuilder specification</dd>
+</dl>
+<p>Returns:</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="clilib.builders.app.EasyDoc.build_page"><code class="name flex">
+<span>def <span class="ident">build_page</span></span>(<span>self, spec)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Build manpage from given specification and output in groff format.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>spec</code></strong></dt>
+<dd>pre-built SpecBuilder specification</dd>
+</dl>
+<p>Returns:</p></div>
+</dd>
+<dt id="clilib.builders.app.EasyDoc.build_pages"><code class="name flex">
+<span>def <span class="ident">build_pages</span></span>(<span>self, processor=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Recursively build all available manpages</p>
+<p>Returns:</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="clilib.builders.app.HTMLObject"><code class="flex name class">
+<span>class <span class="ident">HTMLObject</span></span>
+<span>(</span><span>name: str, singleton: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<h3>Methods</h3>
+<dl>
+<dt id="clilib.builders.app.HTMLObject.add_class"><code class="name flex">
+<span>def <span class="ident">add_class</span></span>(<span>self, name: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="clilib.builders.app.HTMLObject.attr"><code class="name flex">
+<span>def <span class="ident">attr</span></span>(<span>self, name: str, value: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="clilib.builders.app.HTMLObject.build"><code class="name flex">
+<span>def <span class="ident">build</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="clilib.builders.app.HTMLObject.content"><code class="name flex">
+<span>def <span class="ident">content</span></span>(<span>self, value: Any, append: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="clilib.builders.app.HTMLObject.remove_class"><code class="name flex">
+<span>def <span class="ident">remove_class</span></span>(<span>self, name: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -148,6 +272,11 @@ execute = False</p>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="clilib.builders" href="index.html">clilib.builders</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="clilib.builders.app.manpages" href="#clilib.builders.app.manpages">manpages</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -166,6 +295,25 @@ execute = False</p>
 <ul class="">
 <li><code><a title="clilib.builders.app.EasyCLI.args" href="#clilib.builders.app.EasyCLI.args">args</a></code></li>
 <li><code><a title="clilib.builders.app.EasyCLI.execute_cli" href="#clilib.builders.app.EasyCLI.execute_cli">execute_cli</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="clilib.builders.app.EasyDoc" href="#clilib.builders.app.EasyDoc">EasyDoc</a></code></h4>
+<ul class="">
+<li><code><a title="clilib.builders.app.EasyDoc.build_page" href="#clilib.builders.app.EasyDoc.build_page">build_page</a></code></li>
+<li><code><a title="clilib.builders.app.EasyDoc.build_pages" href="#clilib.builders.app.EasyDoc.build_pages">build_pages</a></code></li>
+<li><code><a title="clilib.builders.app.EasyDoc.full_flags" href="#clilib.builders.app.EasyDoc.full_flags">full_flags</a></code></li>
+<li><code><a title="clilib.builders.app.EasyDoc.syn_str" href="#clilib.builders.app.EasyDoc.syn_str">syn_str</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="clilib.builders.app.HTMLObject" href="#clilib.builders.app.HTMLObject">HTMLObject</a></code></h4>
+<ul class="">
+<li><code><a title="clilib.builders.app.HTMLObject.add_class" href="#clilib.builders.app.HTMLObject.add_class">add_class</a></code></li>
+<li><code><a title="clilib.builders.app.HTMLObject.attr" href="#clilib.builders.app.HTMLObject.attr">attr</a></code></li>
+<li><code><a title="clilib.builders.app.HTMLObject.build" href="#clilib.builders.app.HTMLObject.build">build</a></code></li>
+<li><code><a title="clilib.builders.app.HTMLObject.content" href="#clilib.builders.app.HTMLObject.content">content</a></code></li>
+<li><code><a title="clilib.builders.app.HTMLObject.remove_class" href="#clilib.builders.app.HTMLObject.remove_class">remove_class</a></code></li>
 </ul>
 </li>
 </ul>
