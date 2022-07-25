@@ -220,7 +220,7 @@ class YAMLConfigurationFile(ConfigurationFile):
                 if self._validator is not None:
                     self._validator.validate(config_data)
                 self._config_data = SearchableDict(config_data)
-                self._config_path.parent.mkdir(parents=True, exist_ok=True)
+                self.path.parent.mkdir(parents=True, exist_ok=True)
                 self.write()
             else:
                 raise e
