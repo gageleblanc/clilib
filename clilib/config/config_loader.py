@@ -179,8 +179,8 @@ class JSONConfigurationFile(ConfigurationFile):
                     self._validator.validate(config_data)
                 self._config_data = SearchableDict(config_data)
         except FileNotFoundError as e:
-            if self.__auto_create is not None:
-                config_data = self.__auto_create.copy()
+            if self._auto_create is not None:
+                config_data = self._auto_create.copy()
                 if self._validator is not None:
                     self._validator.validate(config_data)
                 self._config_data = SearchableDict(config_data)
