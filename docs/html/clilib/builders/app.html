@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.1.dev571+g5cb31d0" />
 <title>clilib.builders.app API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -35,17 +35,21 @@
 </code></dt>
 <dd>
 <div class="desc"><p>Generate manpages for object based on generated EasyCLI application</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>obj</code></strong></dt>
-<dd>Object to generate manpages for</dd>
-<dt><strong><code>section</code></strong></dt>
-<dd>Destination man section for generated manpages</dd>
-<dt><strong><code>output_dir</code></strong></dt>
-<dd>Output directory for generated manpages</dd>
-<dt><strong><code>compressed</code></strong></dt>
-<dd>Generate gzipped manpages instead of plaintext.</dd>
-</dl>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>obj: Object to generate manpages for</p>
+</li>
+<li>
+<p>section: Destination man section for generated manpages</p>
+</li>
+<li>
+<p>output_dir: Output directory for generated manpages</p>
+</li>
+<li>
+<p>compressed: Generate gzipped manpages instead of plaintext.</p>
+</li>
+</ul>
 <p>Returns:</p></div>
 </dd>
 </dl>
@@ -60,13 +64,15 @@
 <dd>
 <div class="desc"><p>Manually build command-line application by passing a name for the subcommand and a path for the module to be executed
 as the subcommand.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>prefix_path</code></strong></dt>
-<dd>Prefix to prepend to subcommand paths</dd>
-<dt><strong><code>app_name</code></strong></dt>
-<dd>Name of CLI app, used for logging.</dd>
-</dl></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>prefix_path: Prefix to prepend to subcommand paths</p>
+</li>
+<li>
+<p>app_name: Name of CLI app, used for logging.</p>
+</li>
+</ul></div>
 <h3>Methods</h3>
 <dl>
 <dt id="clilib.builders.app.CLIApp.add_subcommand"><code class="name flex">
@@ -74,13 +80,15 @@ as the subcommand.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Add subcommand to this CLI app</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>name</code></strong></dt>
-<dd>subcommand name to use</dd>
-<dt><strong><code>path</code></strong></dt>
-<dd>path to python module</dd>
-</dl>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>name: subcommand name to use</p>
+</li>
+<li>
+<p>path: path to python module</p>
+</li>
+</ul>
 <p>Returns: void</p></div>
 </dd>
 <dt id="clilib.builders.app.CLIApp.command_parser"><code class="name flex">
@@ -95,11 +103,10 @@ as the subcommand.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Execute the specified command based on the given arguments</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>args</code></strong></dt>
-<dd>Namespace object containing parsed arguments</dd>
-</dl>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>args: Namespace object containing parsed arguments</li>
+</ul>
 <p>Returns: Bool</p></div>
 </dd>
 <dt id="clilib.builders.app.CLIApp.start_app"><code class="name flex">
@@ -121,23 +128,30 @@ arguments without defaults will be positionals and arguments with defaults will 
 the base arguments are generated from the <strong>init</strong> function, and any non-private methods are added as subcommands.
 Subclasses are recursively parsed with EasyCLI again, repeating the process described above.</p>
 <p>Build command line application out of given object</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>obj</code></strong></dt>
-<dd>Object to inspect and build application from</dd>
-<dt><strong><code>execute</code></strong></dt>
-<dd>Execute application after building. Default is true</dd>
-<dt><strong><code>enable_logging</code></strong></dt>
-<dd>Enable file-based logging for generation. This can be useful for development debugging.</dd>
-<dt><strong><code>debug</code></strong></dt>
-<dd>Enable additional debugging output.</dd>
-<dt><strong><code>log_location</code></strong></dt>
-<dd>Directory to create log file(s) if enabled. Default is /var/log</dd>
-<dt><strong><code>print_return</code></strong></dt>
-<dd>Print return value of method executed based on command line arguments. Default is false.</dd>
-<dt><strong><code>dump_json</code></strong></dt>
-<dd>Dump return statement to json if it is one of dict or list before printing. Default is true.</dd>
-</dl></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>obj: Object to inspect and build application from</p>
+</li>
+<li>
+<p>execute: Execute application after building. Default is true</p>
+</li>
+<li>
+<p>enable_logging: Enable file-based logging for generation. This can be useful for development debugging.</p>
+</li>
+<li>
+<p>debug: Enable additional debugging output.</p>
+</li>
+<li>
+<p>log_location: Directory to create log file(s) if enabled. Default is /var/log</p>
+</li>
+<li>
+<p>print_return: Print return value of method executed based on command line arguments. Default is false.</p>
+</li>
+<li>
+<p>dump_json: Dump return statement to json if it is one of dict or list before printing. Default is true.</p>
+</li>
+</ul></div>
 <h3>Class variables</h3>
 <dl>
 <dt id="clilib.builders.app.EasyCLI.args"><code class="name">var <span class="ident">args</span> : argparse.Namespace</code></dt>
@@ -163,13 +177,15 @@ execute = False</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Generate manual pages based on SpecBuilder specification</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>spec</code></strong></dt>
-<dd>pre-built SpecBuilder specification</dd>
-<dt><strong><code>section</code></strong></dt>
-<dd>Destination manual section</dd>
-</dl></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>spec: pre-built SpecBuilder specification</p>
+</li>
+<li>
+<p>section: Destination manual section</p>
+</li>
+</ul></div>
 <h3>Static methods</h3>
 <dl>
 <dt id="clilib.builders.app.EasyDoc.full_flags"><code class="name flex">
@@ -177,11 +193,10 @@ execute = False</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Build flags string</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>spec</code></strong></dt>
-<dd>pre-built SpecBuilder specification</dd>
-</dl>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>spec: pre-built SpecBuilder specification</li>
+</ul>
 <p>Returns:</p></div>
 </dd>
 <dt id="clilib.builders.app.EasyDoc.syn_str"><code class="name flex">
@@ -189,11 +204,10 @@ execute = False</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Get synopsis string</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>spec</code></strong></dt>
-<dd>pre-built SpecBuilder specification</dd>
-</dl>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>spec: pre-built SpecBuilder specification</li>
+</ul>
 <p>Returns:</p></div>
 </dd>
 </dl>
@@ -204,11 +218,10 @@ execute = False</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Build manpage from given specification and output in groff format.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>spec</code></strong></dt>
-<dd>pre-built SpecBuilder specification</dd>
-</dl>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>spec: pre-built SpecBuilder specification</li>
+</ul>
 <p>Returns:</p></div>
 </dd>
 <dt id="clilib.builders.app.EasyDoc.build_pages"><code class="name flex">
@@ -322,7 +335,7 @@ execute = False</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.1.dev571+g5cb31d0</a>.</p>
 </footer>
 </body>
 </html>

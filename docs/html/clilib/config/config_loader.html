@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.1.dev571+g5cb31d0" />
 <title>clilib.config.config_loader API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -39,19 +39,24 @@
 <dd>
 <div class="desc"><p>Configuration File base class</p>
 <p>Load a configuration file from a path.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>config_path</code></strong></dt>
-<dd>Path to configuration file</dd>
-<dt><strong><code>schema</code></strong></dt>
-<dd>Validation schema for validating loaded config. This is optional</dd>
-<dt><strong><code>schema_strict</code></strong></dt>
-<dd>Schema validation is strict, failing if keys are missing from loaded config</dd>
-<dt><strong><code>auto_create</code></strong></dt>
-<dd>Dictionary of defaults for auto creation, or None</dd>
-<dt><strong><code>write_on_set</code></strong></dt>
-<dd>Boolean value which tells object whether to write to disk when a value in the config is changed.</dd>
-</dl></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul></div>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="clilib.config.config_loader.INIConfigurationFile" href="#clilib.config.config_loader.INIConfigurationFile">INIConfigurationFile</a></li>
@@ -81,25 +86,42 @@
 <dd>
 <div class="desc"><p>Load INI configuration file from disk, use auto_create if not None and file does not exist. Note that writing configuration files with this
 class will not retain comments.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>config_path</code></strong></dt>
-<dd>Path to configuration file</dd>
-<dt><strong><code>schema</code></strong></dt>
-<dd>Validation schema for validating loaded config. This is optional</dd>
-<dt><strong><code>schema_strict</code></strong></dt>
-<dd>Schema validation is strict, failing if keys are missing from loaded config</dd>
-<dt><strong><code>auto_create</code></strong></dt>
-<dd>Dictionary of defaults for auto creation, or None</dd>
-<dt><strong><code>write_on_set</code></strong></dt>
-<dd>Boolean value which tells object whether to write to disk when a value in the config is changed.</dd>
-</dl>
-<p>Load a configuration file from a path.
-config_path: Path to configuration file
-schema: Validation schema for validating loaded config. This is optional
-schema_strict: Schema validation is strict, failing if keys are missing from loaded config
-auto_create: Dictionary of defaults for auto creation, or None
-write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul>
+<p>Load a configuration file from a path.</p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="clilib.config.config_loader.ConfigurationFile" href="#clilib.config.config_loader.ConfigurationFile">ConfigurationFile</a></li>
@@ -126,25 +148,42 @@ write_on_set: Boolean value which tells object whether to write to disk when a v
 </code></dt>
 <dd>
 <div class="desc"><p>Load JSON configuration file from disk, use auto_create if not None and file does not exist.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>config_path</code></strong></dt>
-<dd>Path to configuration file</dd>
-<dt><strong><code>schema</code></strong></dt>
-<dd>Validation schema for validating loaded config. This is optional</dd>
-<dt><strong><code>schema_strict</code></strong></dt>
-<dd>Schema validation is strict, failing if keys are missing from loaded config</dd>
-<dt><strong><code>auto_create</code></strong></dt>
-<dd>Dictionary of defaults for auto creation, or None</dd>
-<dt><strong><code>write_on_set</code></strong></dt>
-<dd>Boolean value which tells object whether to write to disk when a value in the config is changed.</dd>
-</dl>
-<p>Load a configuration file from a path.
-config_path: Path to configuration file
-schema: Validation schema for validating loaded config. This is optional
-schema_strict: Schema validation is strict, failing if keys are missing from loaded config
-auto_create: Dictionary of defaults for auto creation, or None
-write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul>
+<p>Load a configuration file from a path.</p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="clilib.config.config_loader.ConfigurationFile" href="#clilib.config.config_loader.ConfigurationFile">ConfigurationFile</a></li>
@@ -165,25 +204,42 @@ write_on_set: Boolean value which tells object whether to write to disk when a v
 </code></dt>
 <dd>
 <div class="desc"><p>Load YAML configuration file from disk, use auto_create if not None and file does not exist.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>config_path</code></strong></dt>
-<dd>Path to configuration file</dd>
-<dt><strong><code>schema</code></strong></dt>
-<dd>Validation schema for validating loaded config. This is optional</dd>
-<dt><strong><code>schema_strict</code></strong></dt>
-<dd>Schema validation is strict, failing if keys are missing from loaded config</dd>
-<dt><strong><code>auto_create</code></strong></dt>
-<dd>Dictionary of defaults for auto creation, or None</dd>
-<dt><strong><code>write_on_set</code></strong></dt>
-<dd>Boolean value which tells object whether to write to disk when a value in the config is changed.</dd>
-</dl>
-<p>Load a configuration file from a path.
-config_path: Path to configuration file
-schema: Validation schema for validating loaded config. This is optional
-schema_strict: Schema validation is strict, failing if keys are missing from loaded config
-auto_create: Dictionary of defaults for auto creation, or None
-write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul>
+<p>Load a configuration file from a path.</p>
+<ul>
+<li>
+<p>config_path: Path to configuration file</p>
+</li>
+<li>
+<p>schema: Validation schema for validating loaded config. This is optional</p>
+</li>
+<li>
+<p>schema_strict: Schema validation is strict, failing if keys are missing from loaded config</p>
+</li>
+<li>
+<p>auto_create: Dictionary of defaults for auto creation, or None</p>
+</li>
+<li>
+<p>write_on_set: Boolean value which tells object whether to write to disk when a value in the config is changed.</p>
+</li>
+</ul></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="clilib.config.config_loader.ConfigurationFile" href="#clilib.config.config_loader.ConfigurationFile">ConfigurationFile</a></li>
@@ -254,7 +310,7 @@ write_on_set: Boolean value which tells object whether to write to disk when a v
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.1.dev571+g5cb31d0</a>.</p>
 </footer>
 </body>
 </html>
