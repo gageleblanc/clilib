@@ -189,9 +189,12 @@ class JSONConfigurationFile(ConfigurationFile):
             else:
                 raise e
 
-    def write(self):
+    def write(self, pretty=False):
         with open(self.path, 'w') as f:
-            json.dump(self._config_data, f)
+            if pretty:
+                json.dump(self._config_data, f, indent=4)
+            else:
+                json.dump(self._config_data, f)
 
 
 class YAMLConfigurationFile(ConfigurationFile):
